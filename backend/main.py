@@ -67,6 +67,7 @@ class FollowResponse(BaseModel):
     failed: int
 
 class AutoFollowRequest(BaseModel):
+    token: Optional[str] = None  # 可选：当后端未配置FIXED_TOKEN时使用
     interval_minutes: Optional[int] = 5  # 间隔分钟数
     users_per_batch: Optional[int] = 10  # 每批关注用户数
 
@@ -412,17 +413,27 @@ def auto_follow_batch():
     except Exception as e:
         logger.error(f"Error in auto follow batch: {e}")
 
-def start_auto_follow(interval_minutes: int = 1440, users_per_batch: int = 10):
+def start_auto_follow(interval_minutes: int = 1440, users_per_batch: int = 10, request_token: Optional[str] = None):
     """启动自动关注"""
     global auto_follow_status
     
     if auto_follow_status["is_running"]:
         raise HTTPException(status_code=400, detail="Auto follow is already running")
     
-    # 使用固定token（来自环境变量配置）
-    use_token = FIXED_TOKEN
-    
-    if not validate_github_token(use_token):
+    # 按优先级选择 token：FIXED_TOKEN（若有效）> 请求中的 token（若有效）
+    candidate_tokens = []
+    if FIXED_TOKEN:
+        candidate_tokens.append(FIXED_TOKEN)
+    if request_token:
+        candidate_tokens.append(request_token)
+
+    use_token: Optional[str] = None
+    for t in candidate_tokens:
+        if validate_github_token(t):
+            use_token = t
+            break
+
+    if not use_token:
         raise HTTPException(status_code=401, detail="Invalid GitHub token")
     
     # 更新状态
@@ -580,7 +591,8 @@ async def start_auto_follow_endpoint(request: AutoFollowRequest):
     try:
         start_auto_follow(
             request.interval_minutes,
-            request.users_per_batch
+            request.users_per_batch,
+            request.token
         )
         return {"message": "Auto follow started successfully"}
         

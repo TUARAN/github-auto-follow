@@ -554,6 +554,7 @@
                                 'Content-Type': 'application/json',
                             },
                             body: JSON.stringify({
+                                token: token.value,
                                 interval_minutes: 1440,  // 24小时
                                 users_per_batch: 10
                             })
