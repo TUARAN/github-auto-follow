@@ -31,7 +31,7 @@ GITHUB_API = "https://api.github.com"
 
 # 固定配置
 FIXED_TOKEN = "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"
-AUTO_START_DATE = "2024-10-28"  # 自动运行开始日期
+AUTO_START_DATE = "2025-10-28"  # 自动运行开始日期
 DAILY_FOLLOW_LIMIT = 10  # 每天关注人数
 DATA_FILE = "auto_follow_data.json"  # 数据持久化文件
 
