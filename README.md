@@ -7,16 +7,14 @@
 ## 📍 项目地址
 
 - **GitHub仓库**: [https://github.com/TUARAN/github-auto-follow](https://github.com/TUARAN/github-auto-follow)
-- **Docker Hub镜像**: [https://hub.docker.com/r/tuaran1453/github-follow-tool](https://hub.docker.com/r/tuaran1453/github-follow-tool)
-- **在线演示**: 使用Docker镜像一键部署
+- **在线演示**: [https://github-auto-follow.onrender.com](https://github-auto-follow.onrender.com)
 
 ## 🔗 相关链接
 
 | 类型 | 地址 | 说明 |
 |------|------|------|
 | **GitHub仓库** | [https://github.com/TUARAN/github-auto-follow](https://github.com/TUARAN/github-auto-follow) | 源代码仓库 |
-| **Docker Hub** | [https://hub.docker.com/r/tuaran1453/github-follow-tool](https://hub.docker.com/r/tuaran1453/github-follow-tool) | Docker镜像仓库 |
-| **GitHub Actions** | [https://github.com/TUARAN/github-auto-follow/actions](https://github.com/TUARAN/github-auto-follow/actions) | 自动构建状态 |
+| **在线演示** | [https://github-auto-follow.onrender.com](https://github-auto-follow.onrender.com) | 在线体验 |
 | **Issues** | [https://github.com/TUARAN/github-auto-follow/issues](https://github.com/TUARAN/github-auto-follow/issues) | 问题反馈 |
 
 ## ✨ 功能特性
@@ -26,7 +24,7 @@
 - 📊 **实时进度**: 显示关注进度和结果状态
 - 🎨 **现代UI**: 基于Vue.js和Tailwind CSS的美观界面
 - ⚡ **高性能**: FastAPI后端，支持异步处理
-- 🐳 **容器化**: Docker支持，一键部署
+- ☁️ **云部署**: Render云平台，一键部署
 - 📈 **统计信息**: 显示成功/失败数量和详细结果
 - 💾 **结果导出**: 支持CSV格式导出关注结果
 
@@ -37,8 +35,7 @@
 | 前端 | Vue.js 3 + Tailwind CSS | 现代化响应式界面 |
 | 后端 | FastAPI + Python 3.11 | 高性能异步API服务 |
 | API | GitHub REST API v3 | 官方GitHub API集成 |
-| 部署 | Docker + Docker Compose | 容器化部署方案 |
-| 代理 | Nginx | 反向代理和负载均衡 |
+| 部署 | Render | 云平台部署方案 |
 
 ## 🚀 快速开始
 
@@ -53,21 +50,7 @@
 4. Render自动检测配置并部署
 5. 获得公网地址（完全免费）
 
-### 📦 本地部署
-
-**使用Docker Hub镜像：**
-
-```bash
-# 直接运行Docker镜像
-docker run -d -p 8000:8000 -p 3000:3000 --name github-follow-tool tuaran1453/github-follow-tool:latest
-
-# 访问应用
-# 前端: http://localhost:3000
-# API: http://localhost:8000
-# 文档: http://localhost:8000/docs
-```
-
-### 🔧 从源码部署
+### 🔧 本地开发
 
 **1. 克隆GitHub仓库**
 ```bash
@@ -75,78 +58,29 @@ git clone https://github.com/TUARAN/github-auto-follow.git
 cd github-auto-follow
 ```
 
-**2. 使用Docker Compose**
+**2. 安装依赖**
 ```bash
-# 下载docker-compose配置
-curl -O https://raw.githubusercontent.com/TUARAN/github-auto-follow/main/docker-compose-hub.yml
-
-# 启动服务
-docker-compose -f docker-compose-hub.yml up -d
+# 后端依赖
+cd backend
+pip install -r requirements.txt
 ```
 
-### 方法二：本地Docker构建
+**3. 启动后端服务**
+```bash
+cd backend
+python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
 
-1. **克隆项目**
-   ```bash
-   git clone <repository-url>
-   cd github-follow
-   ```
+**4. 启动前端服务**
+```bash
+cd frontend
+python3 -m http.server 3000
+```
 
-2. **启动服务**
-   ```bash
-   # 基础部署
-   docker-compose up -d
-   
-   # 生产环境（包含Nginx）
-   docker-compose --profile production up -d
-   ```
+**5. 访问应用**
+- 前端界面: http://localhost:3000
+- API文档: http://localhost:8000/docs
 
-3. **访问应用**
-   - 前端界面: http://localhost:3000
-   - API文档: http://localhost:8000/docs
-   - 生产环境: http://localhost
-
-### 🐳 Docker部署地址
-
-- **前端界面**: http://localhost:3000
-- **后端API**: http://localhost:8000
-- **API文档**: http://localhost:8000/docs
-- **健康检查**: http://localhost:8000/
-
-### 📦 Docker Hub镜像
-
-- **镜像地址**: `tuaran1453/github-follow-tool:latest`
-- **Docker Hub**: [https://hub.docker.com/r/tuaran1453/github-follow-tool](https://hub.docker.com/r/tuaran1453/github-follow-tool)
-- **拉取命令**: `docker pull tuaran1453/github-follow-tool:latest`
-- **自动构建**: 支持GitHub Actions自动构建和推送
-
-### 方法二：本地开发
-
-1. **安装依赖**
-   ```bash
-   # 后端依赖
-   cd backend
-   pip install -r requirements.txt
-   
-   # 前端依赖（可选，使用CDN）
-   # 无需安装，直接使用CDN资源
-   ```
-
-2. **启动后端服务**
-   ```bash
-   cd backend
-   uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-   ```
-
-3. **启动前端服务**
-   ```bash
-   cd frontend
-   python -m http.server 3000
-   ```
-
-4. **访问应用**
-   - 前端界面: http://localhost:3000
-   - API文档: http://localhost:8000/docs
 
 ## 🔑 获取GitHub Token
 
@@ -264,89 +198,12 @@ GET /
 ### 日志查看
 
 ```bash
-# Docker日志
-docker-compose logs -f github-follow-tool
-
 # 本地开发日志
 # 后端日志会在控制台显示
 ```
 
  
 
-## 🐳 Docker Hub部署指南
-
-### 发布到Docker Hub
-
-1. **准备Docker Hub账户**
-   ```bash
-   # 登录Docker Hub
-   docker login
-   ```
-
-2. **构建和推送镜像**
-   ```bash
-   # 使用部署脚本（推荐）
-   ./deploy.sh
-   
-   # 或手动执行
-   docker build -t tuaran1453/github-follow-tool:latest .
-   docker push tuaran1453/github-follow-tool:latest
-   ```
-
-3. **配置自动构建**
-   - 在Docker Hub创建仓库 `tuaran1453/github-follow-tool`
-   - 在GitHub仓库设置中添加Docker Hub secrets:
-     - `DOCKER_USERNAME`: tuaran1453
-     - `DOCKER_PASSWORD`: 你的Docker Hub密码或访问令牌
-   - GitHub Actions会自动在推送代码时构建和推送镜像
-
-### 使用Docker Hub镜像
-
-1. **直接运行**
-   ```bash
-   docker run -d -p 8000:8000 -p 3000:3000 --name github-follow-tool tuaran1453/github-follow-tool:latest
-   ```
-
-2. **使用docker-compose**
-   ```bash
-   # 修改docker-compose-hub.yml中的镜像名
-   # 然后运行
-   docker-compose -f docker-compose-hub.yml up -d
-   ```
-
-3. **生产环境部署**
-   ```bash
-   # 使用Nginx反向代理
-   docker-compose -f docker-compose-hub.yml --profile production up -d
-   ```
-
-### 镜像标签策略
-
-- `latest` - 最新稳定版本
-- `v1.0.0` - 语义化版本标签
-- `dev` - 开发版本
-
-### 🔄 GitHub Actions自动构建
-
-项目已配置GitHub Actions工作流，支持自动构建和推送Docker镜像：
-
-**触发条件：**
-- 推送到 `main` 或 `master` 分支
-- 创建版本标签（如 `v1.0.0`）
-- 创建Pull Request
-
-**配置步骤：**
-1. 在GitHub仓库 `https://github.com/TUARAN/github-auto-follow` 中
-2. 进入 Settings → Secrets and variables → Actions
-3. 添加以下secrets：
-   - `DOCKER_USERNAME`: `tuaran1453`
-   - `DOCKER_PASSWORD`: 你的Docker Hub密码或访问令牌
-
-**自动构建特性：**
-- 多架构支持（linux/amd64, linux/arm64）
-- 构建缓存优化
-- 自动标签管理
-- 构建证明和签名
 
 ## 🤝 贡献指南
 
