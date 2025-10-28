@@ -1,0 +1,13 @@
+# Cloudflare Pages部署配置
+
+# _redirects (Cloudflare Pages)
+# API重定向
+/api/* /backend/:splat 200
+/follow /backend/follow 200
+/user/info /backend/user/info 200
+/users/recommended /backend/users/recommended 200
+/auto-follow/* /backend/auto-follow/:splat 200
+/docs /backend/docs 200
+
+# SPA路由支持
+/* /index.html 200
