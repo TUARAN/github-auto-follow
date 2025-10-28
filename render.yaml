@@ -7,9 +7,12 @@ services:
     buildCommand: pip install -r backend/requirements.txt
     startCommand: python3 -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /
+    dockerfilePath: ""  # 明确指定不使用Dockerfile
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.18
+      - key: RENDER_ENV
+        value: python
 
   # Frontend static site service
   - type: static
