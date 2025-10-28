@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# GitHub 自动关注工具 - 快速部署脚本
+# TUARAN GitHub 自动关注工具 - 快速部署脚本
 
 echo "🚀 开始部署 GitHub 自动关注工具..."
 
@@ -50,8 +50,8 @@ echo ""
 echo "🔗 部署完成后访问你的服务URL即可使用！"
 echo ""
 echo "✨ 功能特性："
-echo "- 从2024年10月28日开始自动运行"
-echo "- 每天关注10个GitHub用户"
+echo "- 从2025年10月28日开始自动运行"
+echo "- 每天关注10个GitHub用户（TUARAN账号）"
 echo "- 实时状态监控和统计"
 echo "- 完整的Web界面"
 echo ""
