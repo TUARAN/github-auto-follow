@@ -1,16 +1,19 @@
 services:
+  # Backend API service (FastAPI)
   - type: web
-    name: github-follow-tool
+    name: github-follow-backend
     env: python
     plan: free
     buildCommand: pip install -r backend/requirements.txt
     startCommand: python3 -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /
     envVars:
-      - key: PORT
-        value: 10000
       - key: PYTHON_VERSION
         value: 3.9.18
+
+  # Frontend static site service
+  - type: static
+    name: github-follow-frontend
     staticPublishPath: frontend/
     routes:
       - type: rewrite
