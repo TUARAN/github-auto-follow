@@ -1,4 +1,3 @@
-航
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -412,9 +411,8 @@
 
         createApp({
             setup() {
-                // 常量
-                const FIXED_TOKEN = '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';
-                
+                // 常量（不在前端存放固定token）
+
                 // 响应式数据
                 const token = ref('');
                 const usernames = ref('');
@@ -475,12 +473,7 @@
                     
                     isLoading.value = true;
                     try {
-                        const response = await fetch('https://gaf.onrender.com/user/info', {
-                            method: 'GET',
-                            headers: {
-                                'Authorization': `Bearer ${token.value}`
-                            }
-                        });
+                        const response = await fetch(`https://gaf.onrender.com/user/info?token=${encodeURIComponent(token.value)}`);
                         
                         if (response.ok) {
                             userInfo.value = await response.json();
@@ -561,7 +554,6 @@
                                 'Content-Type': 'application/json',
                             },
                             body: JSON.stringify({
-                                token: FIXED_TOKEN,
                                 interval_minutes: 1440,  // 24小时
                                 users_per_batch: 10
                             })

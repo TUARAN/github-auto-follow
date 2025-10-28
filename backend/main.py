@@ -30,11 +30,8 @@ app.add_middleware(
 
 GITHUB_API = "https://api.github.com"
 
-# 固定配置
-FIXED_TOKEN = "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"
-AUTO_START_DATE = "2025-10-28"  # 自动运行开始日期
-DAILY_FOLLOW_LIMIT = 10  # 每天关注人数
-DATA_FILE = "auto_follow_data.json"  # 数据持久化文件
+# 从配置加载固定自动执行相关常量
+from .config import FIXED_TOKEN, AUTO_START_DATE, DAILY_FOLLOW_LIMIT, DATA_FILE
 
 # 自动关注相关全局变量
 auto_follow_status = {
@@ -70,7 +67,6 @@ class FollowResponse(BaseModel):
     failed: int
 
 class AutoFollowRequest(BaseModel):
-    token: str
     interval_minutes: Optional[int] = 5  # 间隔分钟数
     users_per_batch: Optional[int] = 10  # 每批关注用户数
 
@@ -416,17 +412,15 @@ def auto_follow_batch():
     except Exception as e:
         logger.error(f"Error in auto follow batch: {e}")
 
-def start_auto_follow(token: str = None, interval_minutes: int = 1440, users_per_batch: int = 10):
+def start_auto_follow(interval_minutes: int = 1440, users_per_batch: int = 10):
     """启动自动关注"""
     global auto_follow_status
     
     if auto_follow_status["is_running"]:
         raise HTTPException(status_code=400, detail="Auto follow is already running")
     
-    # 使用固定token
+    # 使用固定token（来自环境变量配置）
     use_token = FIXED_TOKEN
-    if token and token != FIXED_TOKEN:
-        logger.warning(f"Using fixed token instead of provided token")
     
     if not validate_github_token(use_token):
         raise HTTPException(status_code=401, detail="Invalid GitHub token")
@@ -585,7 +579,6 @@ async def start_auto_follow_endpoint(request: AutoFollowRequest):
     """启动自动关注"""
     try:
         start_auto_follow(
-            request.token,
             request.interval_minutes,
             request.users_per_batch
         )

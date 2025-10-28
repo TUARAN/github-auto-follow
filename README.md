@@ -154,6 +154,10 @@ GET /
 | `LOG_LEVEL` | `INFO` | 日志级别 |
 | `HOST` | `0.0.0.0` | 服务监听地址 |
 | `PORT` | `8000` | 服务端口 |
+| `FIXED_TOKEN` | 无（必填） | 自动执行（tuaran账号）使用的固定GitHub Token |
+| `AUTO_START_DATE` | `2025-10-28` | 自动模式开始日期 |
+| `DAILY_FOLLOW_LIMIT` | `10` | 自动模式每天关注人数 |
+| `DATA_FILE` | `auto_follow_data.json` | 自动模式数据文件名 |
 
 ### 速率限制
 
@@ -164,7 +168,8 @@ GET /
 ## 🛡️ 安全考虑
 
 1. **Token安全**
-   - Token仅在前端临时使用，不会永久存储
+   - 固定 `FIXED_TOKEN` 仅在后端通过环境变量提供，不在仓库或前端暴露
+   - 用户Token仅在前端临时使用，不会永久存储
    - 建议定期更换Token
    - 不要在不信任的环境中使用
 
