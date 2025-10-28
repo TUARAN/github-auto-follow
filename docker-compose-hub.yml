@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  github-follow-tool:
+    image: tuaran1453/github-follow-tool:latest
+    container_name: github-follow-tool
+    ports:
+      - "8000:8000"  # FastAPI后端
+      - "3000:3000"  # 前端静态文件
+    environment:
+      - DEBUG=false
+      - LOG_LEVEL=INFO
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 可选：添加Nginx反向代理
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - github-follow-tool
+    restart: unless-stopped
+    profiles:
+      - production

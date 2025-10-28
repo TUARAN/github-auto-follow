@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub 自动关注工具</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity 0.3s ease;
+        }
+        .fade-enter-from, .fade-leave-to {
+            opacity: 0;
+        }
+        .slide-enter-active, .slide-leave-active {
+            transition: all 0.3s ease;
+        }
+        .slide-enter-from {
+            transform: translateY(-10px);
+            opacity: 0;
+        }
+        .slide-leave-to {
+            transform: translateY(10px);
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div id="app" class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- 头部 -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                <i class="fab fa-github text-gray-600"></i>
+                GitHub 自动关注工具
+            </h1>
+            <p class="text-gray-600">批量关注GitHub用户，提升你的社交网络</p>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <!-- 用户信息卡片 -->
+            <div v-if="userInfo" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div class="flex items-center space-x-4">
+                    <img :src="userInfo.avatar_url" :alt="userInfo.username" 
+                         class="w-12 h-12 rounded-full border-2 border-blue-300">
+                    <div>
+                        <h3 class="font-semibold text-gray-800">{{ userInfo.name || userInfo.username }}</h3>
+                        <p class="text-sm text-gray-600">@{{ userInfo.username }}</p>
+                        <div class="flex space-x-4 text-sm text-gray-500 mt-1">
+                            <span><i class="fas fa-users"></i> {{ userInfo.followers }} 关注者</span>
+                            <span><i class="fas fa-user-plus"></i> {{ userInfo.following }} 关注中</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Token输入 -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-key"></i> GitHub Personal Access Token
+                </label>
+                <div class="relative">
+                    <input 
+                        v-model="token" 
+                        type="password"
+                        placeholder="请输入你的GitHub Personal Access Token"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
+                        :disabled="isLoading"
+                    >
+                    <button 
+                        @click="toggleTokenVisibility"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                        <i :class="showToken ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                    </button>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                    <i class="fas fa-info-circle"></i>
+                    需要 <code class="bg-gray-100 px-1 rounded">user:follow</code> 权限
+                    <a href="https://github.com/settings/tokens" target="_blank" 
+                       class="text-blue-500 hover:text-blue-700 ml-1">
+                        获取Token <i class="fas fa-external-link-alt text-xs"></i>
+                    </a>
+                </p>
+            </div>
+
+            <!-- 自动关注模式 -->
+            <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div class="flex items-center mb-3">
+                    <i class="fas fa-magic text-green-600 mr-2"></i>
+                    <h3 class="font-medium text-green-800">自动关注模式</h3>
+                </div>
+                <p class="text-sm text-green-700 mb-3">
+                    系统会自动获取推荐用户，每5分钟关注10个人，无需手动输入用户名
+                </p>
+                <div class="flex space-x-3">
+                    <button 
+                        @click="startAutoFollow"
+                        :disabled="!token || isLoading || autoFollowStatus.is_running"
+                        class="flex-1 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                        <i class="fas fa-play mr-2"></i>
+                        {{ autoFollowStatus.is_running ? '自动关注中...' : '开始自动关注' }}
+                    </button>
+                    <button 
+                        @click="stopAutoFollow"
+                        :disabled="!autoFollowStatus.is_running"
+                        class="flex-1 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                        <i class="fas fa-stop mr-2"></i>
+                        停止自动关注
+                    </button>
+                </div>
+            </div>
+
+            <!-- 手动输入模式 -->
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-2">
+                    <label class="block text-sm font-medium text-gray-700">
+                        <i class="fas fa-users"></i> 手动输入用户名（可选）
+                    </label>
+                    <button 
+                        @click="loadRecommendedUsers"
+                        :disabled="!token || isLoading"
+                        class="text-xs text-blue-500 hover:text-blue-700"
+                    >
+                        <i class="fas fa-sync"></i> 获取推荐用户
+                    </button>
+                </div>
+                <textarea 
+                    v-model="usernames" 
+                    placeholder="输入要关注的GitHub用户名，每行一个&#10;例如：&#10;octocat&#10;torvalds&#10;gaearon"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-32 resize-none"
+                    :disabled="isLoading"
+                ></textarea>
+                <div class="flex justify-between items-center mt-2">
+                    <p class="text-xs text-gray-500">
+                        已输入 {{ validUsernames.length }} 个用户名
+                    </p>
+                    <button 
+                        @click="clearUsernames"
+                        class="text-xs text-red-500 hover:text-red-700"
+                        :disabled="isLoading"
+                    >
+                        <i class="fas fa-trash"></i> 清空
+                    </button>
+                </div>
+            </div>
+
+            <!-- 设置选项 -->
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h3 class="font-medium text-gray-700 mb-3">
+                    <i class="fas fa-cog"></i> 设置选项
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">请求间隔 (秒)</label>
+                        <input 
+                            v-model.number="delay" 
+                            type="number" 
+                            min="0.1" 
+                            max="5" 
+                            step="0.1"
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            :disabled="isLoading"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">最大用户数</label>
+                        <input 
+                            v-model.number="maxUsers" 
+                            type="number" 
+                            min="1" 
+                            max="100"
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            :disabled="isLoading"
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button 
+                    @click="validateToken"
+                    :disabled="!token || isLoading"
+                    class="flex-1 bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                    <i class="fas fa-check-circle mr-2"></i>
+                    验证Token
+                </button>
+                <button 
+                    @click="followUsers"
+                    :disabled="!token || !validUsernames.length || isLoading"
+                    class="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                    <i class="fas fa-user-plus mr-2"></i>
+                    {{ isLoading ? '执行中...' : '开始关注' }}
+                </button>
+            </div>
+        </div>
+
+        <!-- 自动关注状态 -->
+        <div v-if="autoFollowStatus.is_running" class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-green-800">
+                    <i class="fas fa-magic"></i> 自动关注状态
+                </h2>
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="text-sm text-green-600">运行中</span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="bg-green-50 p-3 rounded-lg">
+                    <div class="text-sm text-green-600">开始时间</div>
+                    <div class="font-medium">{{ formatTime(autoFollowStatus.start_time) }}</div>
+                </div>
+                <div class="bg-blue-50 p-3 rounded-lg">
+                    <div class="text-sm text-blue-600">下次执行</div>
+                    <div class="font-medium">{{ formatTime(autoFollowStatus.next_run_time) }}</div>
+                </div>
+                <div class="bg-purple-50 p-3 rounded-lg">
+                    <div class="text-sm text-purple-600">已关注总数</div>
+                    <div class="font-medium">{{ autoFollowStatus.total_followed }}</div>
+                </div>
+            </div>
+            
+            <div v-if="autoFollowStatus.last_batch_results" class="mt-4">
+                <h3 class="font-medium text-gray-700 mb-2">最近一批结果</h3>
+                <div class="space-y-2 max-h-40 overflow-y-auto">
+                    <div 
+                        v-for="result in autoFollowStatus.last_batch_results" 
+                        :key="result.username"
+                        class="flex items-center justify-between p-2 rounded border text-sm"
+                        :class="result.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'"
+                    >
+                        <span class="font-mono">{{ result.username }}</span>
+                        <span 
+                            class="px-2 py-1 rounded text-xs"
+                            :class="result.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                        >
+                            {{ result.status }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 进度条 -->
+        <div v-if="isLoading" class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700">执行进度</span>
+                <span class="text-sm text-gray-500">{{ currentProgress }}/{{ totalProgress }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                    class="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                    :style="{ width: progressPercentage + '%' }"
+                ></div>
+            </div>
+            <p class="text-sm text-gray-600 mt-2">{{ currentUsername }}</p>
+        </div>
+
+        <!-- 结果显示 -->
+        <div v-if="results.length > 0" class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">
+                    <i class="fas fa-list-check"></i> 执行结果
+                </h2>
+                <div class="flex space-x-4 text-sm">
+                    <span class="text-green-600">
+                        <i class="fas fa-check-circle"></i> 成功: {{ successfulCount }}
+                    </span>
+                    <span class="text-red-600">
+                        <i class="fas fa-times-circle"></i> 失败: {{ failedCount }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="space-y-2 max-h-96 overflow-y-auto">
+                <transition-group name="slide" tag="div">
+                    <div 
+                        v-for="result in results" 
+                        :key="result.username"
+                        class="flex items-center justify-between p-3 rounded-lg border"
+                        :class="result.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'"
+                    >
+                        <div class="flex items-center space-x-3">
+                            <i :class="result.success ? 'fas fa-check-circle text-green-500' : 'fas fa-times-circle text-red-500'"></i>
+                            <div>
+                                <span class="font-mono font-medium">{{ result.username }}</span>
+                                <p class="text-sm text-gray-600">{{ result.message }}</p>
+                            </div>
+                        </div>
+                        <span 
+                            class="px-2 py-1 rounded text-xs font-medium"
+                            :class="result.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                        >
+                            {{ result.status }}
+                        </span>
+                    </div>
+                </transition-group>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <button 
+                    @click="exportResults"
+                    class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
+                >
+                    <i class="fas fa-download mr-2"></i> 导出结果
+                </button>
+            </div>
+        </div>
+
+        <!-- 使用说明 -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                <i class="fas fa-question-circle"></i> 使用说明
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-medium text-gray-700 mb-2">1. 获取GitHub Token</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• 访问 <a href="https://github.com/settings/tokens" target="_blank" class="text-blue-500">GitHub Settings</a></li>
+                        <li>• 点击 "Generate new token"</li>
+                        <li>• 选择 "user:follow" 权限</li>
+                        <li>• 复制生成的token</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-700 mb-2">2. 输入用户名</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• 每行输入一个GitHub用户名</li>
+                        <li>• 支持批量输入，最多100个</li>
+                        <li>• 系统会自动去重</li>
+                        <li>• 建议设置适当的请求间隔</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, watch } = Vue;
+
+        createApp({
+            setup() {
+                // 响应式数据
+                const token = ref('');
+                const usernames = ref('');
+                const delay = ref(0.5);
+                const maxUsers = ref(50);
+                const isLoading = ref(false);
+                const results = ref([]);
+                const userInfo = ref(null);
+                const showToken = ref(false);
+                const currentProgress = ref(0);
+                const totalProgress = ref(0);
+                const currentUsername = ref('');
+                const autoFollowStatus = ref({
+                    is_running: false,
+                    start_time: null,
+                    next_run_time: null,
+                    total_followed: 0,
+                    last_batch_results: null
+                });
+                const statusCheckInterval = ref(null);
+
+                // 计算属性
+                const validUsernames = computed(() => {
+                    return usernames.value
+                        .split('\n')
+                        .map(name => name.trim())
+                        .filter(name => name.length > 0)
+                        .slice(0, maxUsers.value);
+                });
+
+                const successfulCount = computed(() => {
+                    return results.value.filter(r => r.success).length;
+                });
+
+                const failedCount = computed(() => {
+                    return results.value.filter(r => !r.success).length;
+                });
+
+                const progressPercentage = computed(() => {
+                    if (totalProgress.value === 0) return 0;
+                    return (currentProgress.value / totalProgress.value) * 100;
+                });
+
+                // 方法
+                const toggleTokenVisibility = () => {
+                    showToken.value = !showToken.value;
+                };
+
+                const clearUsernames = () => {
+                    usernames.value = '';
+                };
+
+                const validateToken = async () => {
+                    if (!token.value) return;
+                    
+                    isLoading.value = true;
+                    try {
+                        const response = await fetch('http://localhost:8000/user/info', {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token.value}`
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            userInfo.value = await response.json();
+                        } else {
+                            alert('Token验证失败，请检查token是否正确');
+                        }
+                    } catch (error) {
+                        console.error('Token validation error:', error);
+                        alert('Token验证失败，请检查网络连接');
+                    } finally {
+                        isLoading.value = false;
+                    }
+                };
+
+                const followUsers = async () => {
+                    if (!token.value || !validUsernames.value.length) return;
+                    
+                    isLoading.value = true;
+                    results.value = [];
+                    currentProgress.value = 0;
+                    totalProgress.value = validUsernames.value.length;
+                    
+                    try {
+                        const response = await fetch('http://localhost:8000/follow', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                token: token.value,
+                                usernames: validUsernames.value,
+                                delay: delay.value
+                            })
+                        });
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            results.value = data.results;
+                        } else {
+                            const error = await response.json();
+                            alert(`请求失败: ${error.detail}`);
+                        }
+                    } catch (error) {
+                        console.error('Follow users error:', error);
+                        alert('请求失败，请检查网络连接');
+                    } finally {
+                        isLoading.value = false;
+                        currentProgress.value = 0;
+                        totalProgress.value = 0;
+                        currentUsername.value = '';
+                    }
+                };
+
+                const exportResults = () => {
+                    const csvContent = [
+                        ['用户名', '状态', '消息', '成功'],
+                        ...results.value.map(r => [r.username, r.status, r.message, r.success ? '是' : '否'])
+                    ].map(row => row.join(',')).join('\n');
+                    
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', `github_follow_results_${new Date().toISOString().split('T')[0]}.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                };
+
+                // 自动关注相关方法
+                const startAutoFollow = async () => {
+                    if (!token.value) return;
+                    
+                    isLoading.value = true;
+                    try {
+                        const response = await fetch('http://localhost:8000/auto-follow/start', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                token: token.value,
+                                interval_minutes: 5,
+                                users_per_batch: 10
+                            })
+                        });
+                        
+                        if (response.ok) {
+                            await checkAutoFollowStatus();
+                            startStatusCheck();
+                        } else {
+                            const error = await response.json();
+                            alert(`启动自动关注失败: ${error.detail}`);
+                        }
+                    } catch (error) {
+                        console.error('Start auto follow error:', error);
+                        alert('启动自动关注失败，请检查网络连接');
+                    } finally {
+                        isLoading.value = false;
+                    }
+                };
+
+                const stopAutoFollow = async () => {
+                    try {
+                        const response = await fetch('http://localhost:8000/auto-follow/stop', {
+                            method: 'POST'
+                        });
+                        
+                        if (response.ok) {
+                            await checkAutoFollowStatus();
+                            stopStatusCheck();
+                        } else {
+                            const error = await response.json();
+                            alert(`停止自动关注失败: ${error.detail}`);
+                        }
+                    } catch (error) {
+                        console.error('Stop auto follow error:', error);
+                        alert('停止自动关注失败，请检查网络连接');
+                    }
+                };
+
+                const checkAutoFollowStatus = async () => {
+                    try {
+                        const response = await fetch('http://localhost:8000/auto-follow/status');
+                        if (response.ok) {
+                            autoFollowStatus.value = await response.json();
+                        }
+                    } catch (error) {
+                        console.error('Check auto follow status error:', error);
+                    }
+                };
+
+                const startStatusCheck = () => {
+                    if (statusCheckInterval.value) {
+                        clearInterval(statusCheckInterval.value);
+                    }
+                    statusCheckInterval.value = setInterval(checkAutoFollowStatus, 10000); // 每10秒检查一次
+                };
+
+                const stopStatusCheck = () => {
+                    if (statusCheckInterval.value) {
+                        clearInterval(statusCheckInterval.value);
+                        statusCheckInterval.value = null;
+                    }
+                };
+
+                const loadRecommendedUsers = async () => {
+                    if (!token.value) return;
+                    
+                    isLoading.value = true;
+                    try {
+                        const response = await fetch(`http://localhost:8000/users/recommended?token=${encodeURIComponent(token.value)}&limit=50`);
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            usernames.value = data.users.join('\n');
+                        } else {
+                            const error = await response.json();
+                            alert(`获取推荐用户失败: ${error.detail}`);
+                        }
+                    } catch (error) {
+                        console.error('Load recommended users error:', error);
+                        alert('获取推荐用户失败，请检查网络连接');
+                    } finally {
+                        isLoading.value = false;
+                    }
+                };
+
+                const formatTime = (timeString) => {
+                    if (!timeString) return '未知';
+                    try {
+                        const date = new Date(timeString);
+                        return date.toLocaleString('zh-CN');
+                    } catch (error) {
+                        return '格式错误';
+                    }
+                };
+
+                // 监听token变化，自动验证
+                watch(token, (newToken) => {
+                    if (newToken && newToken.length > 20) {
+                        validateToken();
+                    }
+                });
+
+                return {
+                    token,
+                    usernames,
+                    delay,
+                    maxUsers,
+                    isLoading,
+                    results,
+                    userInfo,
+                    showToken,
+                    currentProgress,
+                    totalProgress,
+                    currentUsername,
+                    autoFollowStatus,
+                    validUsernames,
+                    successfulCount,
+                    failedCount,
+                    progressPercentage,
+                    toggleTokenVisibility,
+                    clearUsernames,
+                    validateToken,
+                    followUsers,
+                    exportResults,
+                    startAutoFollow,
+                    stopAutoFollow,
+                    loadRecommendedUsers,
+                    formatTime
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
