@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
@@ -474,10 +475,15 @@ def stop_auto_follow():
     
     logger.info("Auto follow stopped")
 
-@app.get("/")
-async def root():
-    """健康检查端点"""
+@app.get("/healthz")
+async def healthz():
+    """健康检查端点（用于Render health check）"""
     return {"message": "GitHub Follow Tool API", "status": "running"}
+
+@app.get("/")
+async def index_page():
+    """返回前端页面"""
+    return FileResponse("frontend/index.html")
 
 @app.post("/follow", response_model=FollowResponse)
 async def follow_users(request: FollowRequest):
