@@ -44,12 +44,12 @@
 
 **一键部署到公网，无需本地安装：**
 
-**Cloudflare Pages部署：**
-1. 访问 [Cloudflare Pages](https://pages.cloudflare.com/)
+**Render部署（推荐）：**
+1. 访问 [Render](https://render.com)
 2. 使用GitHub登录
 3. 选择仓库 `TUARAN/github-auto-follow`
-4. 使用 `Dockerfile.cloudflare` 构建
-5. 获得公网地址
+4. Render自动检测配置并部署
+5. 获得公网地址（完全免费）
 
 ### 📦 本地部署
 
