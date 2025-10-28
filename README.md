@@ -40,9 +40,21 @@
 
 ## 🚀 快速开始
 
-### 📦 一键部署（推荐）
+### 🌐 在线体验（推荐）
 
-**使用Docker Hub镜像，无需下载源码：**
+**一键部署到公网，无需本地安装：**
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/github-auto-follow)
+[![Deploy on Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+
+**或手动部署到云平台：**
+- [Railway部署指南](https://github.com/TUARAN/github-auto-follow/blob/main/DEPLOY_CLOUD.md#方案1railway推荐)
+- [Render部署指南](https://github.com/TUARAN/github-auto-follow/blob/main/DEPLOY_CLOUD.md#方案2render)
+- [Fly.io部署指南](https://github.com/TUARAN/github-auto-follow/blob/main/DEPLOY_CLOUD.md#方案3flyio)
+
+### 📦 本地部署
+
+**使用Docker Hub镜像：**
 
 ```bash
 # 直接运行Docker镜像
@@ -257,6 +269,42 @@ docker-compose logs -f github-follow-tool
 # 本地开发日志
 # 后端日志会在控制台显示
 ```
+
+## 🌐 公网部署指南
+
+### 🚀 一键部署到公网
+
+**Railway部署（推荐）：**
+1. 点击 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/github-auto-follow)
+2. 使用GitHub登录
+3. 选择仓库 `TUARAN/github-auto-follow`
+4. 使用 `Dockerfile.cloud` 构建
+5. 获得公网地址
+
+**Render部署：**
+1. 访问 [Render](https://render.com/)
+2. 连接GitHub仓库
+3. 使用 `render.yaml` 配置
+4. 自动部署
+
+**Fly.io部署：**
+```bash
+# 安装Fly CLI
+curl -L https://fly.io/install.sh | sh
+
+# 登录并部署
+fly auth login
+fly launch
+fly deploy
+```
+
+### 📋 部署平台对比
+
+| 平台 | 免费额度 | 部署难度 | 性能 | 推荐度 |
+|------|----------|----------|------|--------|
+| Railway | 500小时/月 | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| Render | 750小时/月 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
+| Fly.io | 160GB小时/月 | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
 
 ## 🐳 Docker Hub部署指南
 
