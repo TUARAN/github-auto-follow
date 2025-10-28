@@ -1,6 +1,7 @@
 # 🚀 GitHub 自动关注工具
 
 👉 在线地址（Render）：[https://github-auto-follow.onrender.com](https://github-auto-follow.onrender.com)
+👉 后端 API 域名：`https://gaf.onrender.com`
 
 一个现代化的网页工具，让用户可以批量关注GitHub用户，提升社交网络影响力。
 
@@ -15,6 +16,7 @@
 |------|------|------|
 | **GitHub仓库** | [https://github.com/TUARAN/github-auto-follow](https://github.com/TUARAN/github-auto-follow) | 源代码仓库 |
 | **在线演示** | [https://github-auto-follow.onrender.com](https://github-auto-follow.onrender.com) | 在线体验 |
+| **后端 API** | `https://gaf.onrender.com` | 生产后端地址 |
 | **Issues** | [https://github.com/TUARAN/github-auto-follow/issues](https://github.com/TUARAN/github-auto-follow/issues) | 问题反馈 |
 
 ## ✨ 功能特性
