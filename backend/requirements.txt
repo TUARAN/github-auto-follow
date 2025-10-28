@@ -1,5 +1,6 @@
 fastapi==0.104.1
-uvicorn[standard]==0.24.0
+# 避免编译型依赖，去掉 [standard] 扩展（uvloop/httptools）
+uvicorn==0.24.0.post1
 requests==2.31.0
 pydantic==2.5.0
 python-multipart==0.0.6
