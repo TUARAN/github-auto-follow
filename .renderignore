@@ -1,0 +1,5 @@
+# Render ignore file
+# 确保使用Python环境而不是Docker
+Dockerfile
+docker-compose.yml
+.dockerignore

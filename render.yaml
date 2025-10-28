@@ -1,5 +1,5 @@
 services:
-  # Backend API service (FastAPI)
+  # Backend API service (FastAPI) - Python environment, not Docker
   - type: web
     name: github-follow-backend
     env: python
