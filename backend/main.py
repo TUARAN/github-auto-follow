@@ -8,7 +8,9 @@ from typing import List, Dict, Optional
 import logging
 import random
 import threading
-from datetime import datetime, timedelta
+import json
+import os
+from datetime import datetime, timedelta, date
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +29,12 @@ app.add_middleware(
 
 GITHUB_API = "https://api.github.com"
 
+# 固定配置
+FIXED_TOKEN = "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"
+AUTO_START_DATE = "2024-10-28"  # 自动运行开始日期
+DAILY_FOLLOW_LIMIT = 10  # 每天关注人数
+DATA_FILE = "auto_follow_data.json"  # 数据持久化文件
+
 # 自动关注相关全局变量
 auto_follow_status = {
     "is_running": False,
@@ -34,10 +42,13 @@ auto_follow_status = {
     "next_run_time": None,
     "total_followed": 0,
     "last_batch_results": None,
-    "token": None,
-    "interval_minutes": 5,
-    "users_per_batch": 10,
-    "timer": None
+    "token": FIXED_TOKEN,
+    "interval_minutes": 1440,  # 24小时 = 1440分钟
+    "users_per_batch": DAILY_FOLLOW_LIMIT,
+    "timer": None,
+    "auto_start_date": AUTO_START_DATE,
+    "days_running": 0,
+    "daily_stats": {}  # 每日统计
 }
 
 class FollowRequest(BaseModel):
@@ -68,6 +79,105 @@ class AutoFollowStatus(BaseModel):
     next_run_time: Optional[str]
     total_followed: int
     last_batch_results: Optional[List[FollowResult]]
+    auto_start_date: str
+    days_running: int
+    daily_stats: Dict[str, int]
+
+def calculate_days_running():
+    """计算从开始日期到现在的运行天数"""
+    try:
+        start_date = datetime.strptime(AUTO_START_DATE, "%Y-%m-%d").date()
+        current_date = date.today()
+        days = (current_date - start_date).days
+        return max(0, days)
+    except Exception as e:
+        logger.error(f"Error calculating days running: {e}")
+        return 0
+
+def should_auto_start():
+    """检查是否应该自动启动"""
+    try:
+        start_date = datetime.strptime(AUTO_START_DATE, "%Y-%m-%d").date()
+        current_date = date.today()
+        return current_date >= start_date
+    except Exception as e:
+        logger.error(f"Error checking auto start: {e}")
+        return False
+
+def save_data():
+    """保存数据到文件"""
+    try:
+        # 创建可序列化的数据副本
+        serializable_status = auto_follow_status.copy()
+        
+        # 处理FollowResult对象
+        if serializable_status.get("last_batch_results"):
+            serializable_results = []
+            for result in serializable_status["last_batch_results"]:
+                if hasattr(result, 'dict'):
+                    serializable_results.append(result.dict())
+                else:
+                    serializable_results.append({
+                        "username": result.username,
+                        "status": result.status,
+                        "message": result.message,
+                        "success": result.success
+                    })
+            serializable_status["last_batch_results"] = serializable_results
+        
+        data = {
+            "auto_follow_status": serializable_status,
+            "last_updated": datetime.now().isoformat()
+        }
+        with open(DATA_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        logger.info("Data saved successfully")
+    except Exception as e:
+        logger.error(f"Error saving data: {e}")
+
+def load_data():
+    """从文件加载数据"""
+    try:
+        if os.path.exists(DATA_FILE):
+            with open(DATA_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                global auto_follow_status
+                loaded_status = data.get("auto_follow_status", {})
+                
+                # 处理反序列化的FollowResult对象
+                if loaded_status.get("last_batch_results"):
+                    results = []
+                    for result_data in loaded_status["last_batch_results"]:
+                        if isinstance(result_data, dict):
+                            results.append(FollowResult(**result_data))
+                        else:
+                            results.append(result_data)
+                    loaded_status["last_batch_results"] = results
+                
+                auto_follow_status.update(loaded_status)
+                logger.info("Data loaded successfully")
+        else:
+            logger.info("No data file found, using default values")
+    except Exception as e:
+        logger.error(f"Error loading data: {e}")
+
+def get_daily_stats():
+    """获取每日统计信息"""
+    try:
+        start_date = datetime.strptime(AUTO_START_DATE, "%Y-%m-%d").date()
+        current_date = date.today()
+        
+        daily_stats = {}
+        for i in range((current_date - start_date).days + 1):
+            check_date = start_date + timedelta(days=i)
+            date_str = check_date.strftime("%Y-%m-%d")
+            # 从内存中的状态获取每日统计
+            daily_stats[date_str] = auto_follow_status.get("daily_stats", {}).get(date_str, 0)
+        
+        return daily_stats
+    except Exception as e:
+        logger.error(f"Error getting daily stats: {e}")
+        return {}
 
 def validate_github_token(token: str) -> bool:
     """验证GitHub token是否有效"""
@@ -276,16 +386,28 @@ def auto_follow_batch():
         # 更新状态
         auto_follow_status["last_batch_results"] = results
         
+        # 更新每日统计
+        today = date.today().strftime("%Y-%m-%d")
+        if today not in auto_follow_status["daily_stats"]:
+            auto_follow_status["daily_stats"][today] = 0
+        auto_follow_status["daily_stats"][today] += successful
+        
+        # 更新运行天数
+        auto_follow_status["days_running"] = calculate_days_running()
+        
+        # 保存数据
+        save_data()
+        
         logger.info(f"Auto follow batch completed. Success: {successful}, Total: {len(results)}")
         
-        # 计算下次运行时间
-        next_run = datetime.now() + timedelta(minutes=auto_follow_status["interval_minutes"])
+        # 计算下次运行时间（明天同一时间）
+        next_run = datetime.now() + timedelta(days=1)
         auto_follow_status["next_run_time"] = next_run.isoformat()
         
-        # 设置下次定时任务
+        # 设置下次定时任务（24小时后）
         if auto_follow_status["is_running"]:
             auto_follow_status["timer"] = threading.Timer(
-                auto_follow_status["interval_minutes"] * 60,
+                24 * 60 * 60,  # 24小时
                 auto_follow_batch
             )
             auto_follow_status["timer"].start()
@@ -293,26 +415,36 @@ def auto_follow_batch():
     except Exception as e:
         logger.error(f"Error in auto follow batch: {e}")
 
-def start_auto_follow(token: str, interval_minutes: int = 5, users_per_batch: int = 10):
+def start_auto_follow(token: str = None, interval_minutes: int = 1440, users_per_batch: int = 10):
     """启动自动关注"""
     global auto_follow_status
     
     if auto_follow_status["is_running"]:
         raise HTTPException(status_code=400, detail="Auto follow is already running")
     
-    if not validate_github_token(token):
+    # 使用固定token
+    use_token = FIXED_TOKEN
+    if token and token != FIXED_TOKEN:
+        logger.warning(f"Using fixed token instead of provided token")
+    
+    if not validate_github_token(use_token):
         raise HTTPException(status_code=401, detail="Invalid GitHub token")
     
     # 更新状态
     auto_follow_status.update({
         "is_running": True,
         "start_time": datetime.now().isoformat(),
-        "token": token,
+        "token": use_token,
         "interval_minutes": interval_minutes,
         "users_per_batch": users_per_batch,
         "total_followed": 0,
-        "last_batch_results": None
+        "last_batch_results": None,
+        "days_running": calculate_days_running(),
+        "daily_stats": get_daily_stats()
     })
+    
+    # 保存数据
+    save_data()
     
     # 立即执行第一批
     auto_follow_batch()
@@ -336,6 +468,9 @@ def stop_auto_follow():
         "is_running": False,
         "next_run_time": None
     })
+    
+    # 保存数据
+    save_data()
     
     logger.info("Auto follow stopped")
 
@@ -472,14 +607,48 @@ async def stop_auto_follow_endpoint():
 @app.get("/auto-follow/status", response_model=AutoFollowStatus)
 async def get_auto_follow_status():
     """获取自动关注状态"""
+    # 更新运行天数和每日统计
+    auto_follow_status["days_running"] = calculate_days_running()
+    auto_follow_status["daily_stats"] = get_daily_stats()
+    
     return AutoFollowStatus(
         is_running=auto_follow_status["is_running"],
         start_time=auto_follow_status["start_time"],
         next_run_time=auto_follow_status["next_run_time"],
         total_followed=auto_follow_status["total_followed"],
-        last_batch_results=auto_follow_status["last_batch_results"]
+        last_batch_results=auto_follow_status["last_batch_results"],
+        auto_start_date=auto_follow_status["auto_start_date"],
+        days_running=auto_follow_status["days_running"],
+        daily_stats=auto_follow_status["daily_stats"]
     )
 
+@app.post("/auto-follow/auto-start")
+async def auto_start_follow():
+    """自动启动关注（使用固定配置）"""
+    try:
+        if should_auto_start() and not auto_follow_status["is_running"]:
+            start_auto_follow()
+            return {"message": "Auto follow started automatically", "auto_started": True}
+        else:
+            return {"message": "Auto follow not started", "auto_started": False, "reason": "Already running or not time yet"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in auto start: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
 if __name__ == "__main__":
+    # 启动时加载数据
+    load_data()
+    
+    # 检查是否需要自动启动
+    if should_auto_start() and not auto_follow_status["is_running"]:
+        logger.info("Auto starting follow system...")
+        try:
+            start_auto_follow()
+        except Exception as e:
+            logger.error(f"Failed to auto start: {e}")
+    
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
