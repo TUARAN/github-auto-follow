@@ -1,6 +1,5 @@
-fastapi==0.104.1
-# 避免编译型依赖，去掉 [standard] 扩展（uvloop/httptools）
-uvicorn==0.24.0.post1
+fastapi==0.100.1
+uvicorn==0.23.2
 requests==2.31.0
-pydantic==2.5.0
+pydantic==2.0.3
 python-multipart==0.0.6
