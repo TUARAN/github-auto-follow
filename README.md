@@ -271,38 +271,7 @@ docker-compose logs -f github-follow-tool
 # 后端日志会在控制台显示
 ```
 
-## 🌐 公网部署指南
-
-### 🚀 Cloudflare Pages部署
-
-**Cloudflare Pages部署（推荐）：**
-1. 访问 [Cloudflare Pages](https://pages.cloudflare.com/)
-2. 使用GitHub登录
-3. 选择仓库 `TUARAN/github-auto-follow`
-4. 使用 `Dockerfile.cloudflare` 构建
-5. 获得公网地址
-
-**Cloudflare Workers部署：**
-```bash
-# 安装Wrangler CLI
-npm install -g wrangler
-
-# 登录Cloudflare
-wrangler login
-
-# 部署到Workers
-wrangler deploy
-```
-
-### 📋 Cloudflare优势
-
-| 特性 | 说明 |
-|------|------|
-| **免费额度** | 无限静态页面，100,000次请求/天 |
-| **全球CDN** | 200+ 数据中心，全球加速 |
-| **自动HTTPS** | 免费SSL证书，自动续期 |
-| **DDoS防护** | 企业级安全防护 |
-| **部署简单** | 连接GitHub，自动部署 |
+ 
 
 ## 🐳 Docker Hub部署指南
 
