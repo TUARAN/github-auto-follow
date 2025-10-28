@@ -4,7 +4,7 @@ from pydantic import BaseModel
 import requests
 import time
 import asyncio
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 import logging
 import random
 import threading
@@ -75,13 +75,13 @@ class AutoFollowRequest(BaseModel):
 
 class AutoFollowStatus(BaseModel):
     is_running: bool
-    start_time: Optional[str]
-    next_run_time: Optional[str]
-    total_followed: int
-    last_batch_results: Optional[List[FollowResult]]
-    auto_start_date: str
-    days_running: int
-    daily_stats: Dict[str, int]
+    start_time: Optional[str] = None
+    next_run_time: Optional[str] = None
+    total_followed: int = 0
+    last_batch_results: Optional[List[FollowResult]] = None
+    auto_start_date: str = "2025-10-28"
+    days_running: int = 0
+    daily_stats: Dict[str, int] = {}
 
 def calculate_days_running():
     """计算从开始日期到现在的运行天数"""
