@@ -1,0 +1,35 @@
+name: Daily Follow
+
+on:
+  schedule:
+    # GitHub cron 使用 UTC。01:00 UTC = 北京时间 09:00。
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "本次关注人数上限"
+        required: false
+        default: "20"
+
+concurrency:
+  group: daily-follow
+  cancel-in-progress: false
+
+jobs:
+  follow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests
+
+      - name: Run daily follow
+        env:
+          FOLLOW_TOKEN: ${{ secrets.FOLLOW_TOKEN }}
+          DAILY_FOLLOW_LIMIT: ${{ github.event.inputs.limit || '20' }}
+        run: python scripts/daily_follow.py
