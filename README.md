@@ -29,6 +29,7 @@
 - ☁️ **云部署**: Render云平台，一键部署
 - 📈 **统计信息**: 显示成功/失败数量和详细结果
 - 💾 **结果导出**: 支持CSV格式导出关注结果
+- 🔀 **非名人推荐**: 从随机搜索用户和活跃项目参与者中生成关注候选，不按粉丝数排名
 
 ## 🛠️ 技术栈
 
@@ -154,10 +155,10 @@ GET /
 | `LOG_LEVEL` | `INFO` | 日志级别 |
 | `HOST` | `0.0.0.0` | 服务监听地址 |
 | `PORT` | `8000` | 服务端口 |
-| `FIXED_TOKEN` | 无（必填） | 自动执行（tuaran账号）使用的固定GitHub Token |
-| `AUTO_START_DATE` | `2025-10-28` | 自动模式开始日期 |
-| `DAILY_FOLLOW_LIMIT` | `10` | 自动模式每天关注人数 |
-| `DATA_FILE` | `auto_follow_data.json` | 自动模式数据文件名 |
+| `FOLLOW_TOKEN` | 无（必填） | 自动关注脚本使用的 GitHub Token，需要 `user:follow` 权限 |
+| `FOLLOW_MIN` | `10` | 自动关注脚本单次关注人数下限 |
+| `FOLLOW_MAX` | `15` | 自动关注脚本单次关注人数上限 |
+| `RATE_LIMIT_FLOOR` | `200` | GitHub API 剩余配额低于该值时提前停止 |
 
 ### 速率限制
 
@@ -165,10 +166,23 @@ GET /
 - 默认请求间隔：0.5秒
 - 建议单次操作不超过100个用户
 
+### 自动关注脚本
+
+```bash
+FOLLOW_TOKEN=your_github_token python3 scripts/daily_follow.py
+```
+
+自动脚本会随机决定本次关注人数，并从两类来源挑选候选：
+
+- 随机 GitHub 用户搜索结果
+- 近期活跃项目的 contributors
+
+脚本会过滤自己、已关注用户和 bot 账号；不会使用粉丝数排序，也不会追加固定明星名单。
+
 ## 🛡️ 安全考虑
 
 1. **Token安全**
-   - 固定 `FIXED_TOKEN` 仅在后端通过环境变量提供，不在仓库或前端暴露
+   - 自动脚本使用的 `FOLLOW_TOKEN` 仅通过环境变量提供，不在仓库或前端暴露
    - 用户Token仅在前端临时使用，不会永久存储
    - 建议定期更换Token
    - 不要在不信任的环境中使用

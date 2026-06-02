@@ -6,6 +6,7 @@ import requests
 import asyncio
 import random
 import logging
+from datetime import datetime, timedelta
 from typing import List, Optional
 
 logging.basicConfig(level=logging.INFO)
@@ -22,6 +23,28 @@ app.add_middleware(
 )
 
 GITHUB_API = "https://api.github.com"
+
+RANDOM_USER_QUERIES = [
+    "type:user repos:>0",
+    "type:user language:python",
+    "type:user language:javascript",
+    "type:user language:go",
+    "type:user language:rust",
+    "type:user language:java",
+    "type:user created:>2020-01-01",
+    "type:user created:>2022-01-01",
+]
+
+REPOSITORY_QUERIES = [
+    "archived:false mirror:false language:python",
+    "archived:false mirror:false language:javascript",
+    "archived:false mirror:false language:typescript",
+    "archived:false mirror:false language:go",
+    "archived:false mirror:false language:rust",
+    "archived:false mirror:false topic:cli",
+    "archived:false mirror:false topic:web",
+    "archived:false mirror:false topic:ai",
+]
 
 
 def extract_token(authorization: Optional[str]) -> str:
@@ -64,8 +87,116 @@ def validate_github_token(token: str) -> bool:
         return False
 
 
+def is_allowed_candidate(username: str, current_login: str, following_logins: set, picked: List[str]) -> bool:
+    return (
+        bool(username)
+        and not username.endswith("[bot]")
+        and username not in following_logins
+        and username != current_login
+        and username not in picked
+    )
+
+
+def collect_current_following(headers: dict) -> set:
+    """拉取当前已关注的人（最多 500 个，用于推荐去重）。"""
+    following_logins = set()
+    for page in range(1, 6):
+        response = requests.get(
+            f"{GITHUB_API}/user/following",
+            params={"per_page": 100, "page": page},
+            headers=headers,
+            timeout=10,
+        )
+        if response.status_code != 200:
+            break
+        batch = response.json()
+        following_logins.update(user["login"] for user in batch)
+        if len(batch) < 100:
+            break
+    return following_logins
+
+
+def add_random_search_users(headers: dict, current_login: str, following_logins: set,
+                            recommended_users: List[str], target_count: int) -> None:
+    queries = RANDOM_USER_QUERIES[:]
+    random.shuffle(queries)
+    for query in queries:
+        if len(recommended_users) >= target_count:
+            return
+        response = requests.get(
+            f"{GITHUB_API}/search/users",
+            params={"q": query, "per_page": 30, "page": random.randint(1, 10)},
+            headers=headers,
+            timeout=10,
+        )
+        if response.status_code != 200:
+            continue
+        users = response.json().get("items", [])
+        random.shuffle(users)
+        for user in users:
+            username = user.get("login")
+            if user.get("type") == "User" and is_allowed_candidate(
+                username, current_login, following_logins, recommended_users
+            ):
+                recommended_users.append(username)
+                if len(recommended_users) >= target_count:
+                    return
+
+
+def add_repository_contributors(headers: dict, current_login: str, following_logins: set,
+                                recommended_users: List[str], target_count: int) -> None:
+    recent_cutoff = (datetime.utcnow() - timedelta(days=365)).strftime("%Y-%m-%d")
+    queries = [f"{query} pushed:>{recent_cutoff}" for query in REPOSITORY_QUERIES]
+    random.shuffle(queries)
+
+    for query in queries:
+        if len(recommended_users) >= target_count:
+            return
+        repo_response = requests.get(
+            f"{GITHUB_API}/search/repositories",
+            params={
+                "q": query,
+                "sort": random.choice(["updated", "forks", "help-wanted-issues"]),
+                "order": "desc",
+                "per_page": 10,
+                "page": random.randint(1, 5),
+            },
+            headers=headers,
+            timeout=10,
+        )
+        if repo_response.status_code != 200:
+            continue
+
+        repositories = repo_response.json().get("items", [])
+        random.shuffle(repositories)
+        for repo in repositories:
+            if len(recommended_users) >= target_count:
+                return
+            contributors_url = repo.get("contributors_url")
+            if not contributors_url:
+                continue
+            contributors_response = requests.get(
+                contributors_url,
+                params={"per_page": 30, "anon": "false"},
+                headers=headers,
+                timeout=10,
+            )
+            if contributors_response.status_code != 200:
+                continue
+            contributors = contributors_response.json()
+            random.shuffle(contributors)
+            for contributor in contributors:
+                username = contributor.get("login")
+                if contributor.get("type") == "User" and is_allowed_candidate(
+                    username, current_login, following_logins, recommended_users
+                ):
+                    recommended_users.append(username)
+                    if len(recommended_users) >= target_count:
+                        return
+
+
 def get_recommended_users(token: str, limit: int = 50) -> List[str]:
-    """获取推荐的 GitHub 用户列表（过滤掉自己和已关注的人）"""
+    """获取推荐的 GitHub 用户列表（随机搜索 + 活跃项目参与者，过滤自己和已关注的人）。"""
     try:
         headers = {
             "Authorization": f"token {token}",
@@ -77,55 +208,11 @@ def get_recommended_users(token: str, limit: int = 50) -> List[str]:
             return []
         current_login = user_response.json().get("login")
 
-        following_response = requests.get(
-            f"{GITHUB_API}/user/following?per_page=100", headers=headers, timeout=10
-        )
-        if following_response.status_code != 200:
-            return []
-        following_logins = {user["login"] for user in following_response.json()}
-
+        following_logins = collect_current_following(headers)
         recommended_users: List[str] = []
-        search_queries = [
-            "created:>2023-01-01 followers:>10",
-            "created:>2022-01-01 followers:>50",
-            "created:>2021-01-01 followers:>100",
-            "language:python followers:>20",
-            "language:javascript followers:>20",
-            "language:java followers:>20",
-        ]
 
-        for query in search_queries:
-            if len(recommended_users) >= limit:
-                break
-            search_response = requests.get(
-                f"{GITHUB_API}/search/users?q={query}&sort=followers&order=desc&per_page=30",
-                headers=headers,
-                timeout=10,
-            )
-            if search_response.status_code == 200:
-                for user in search_response.json().get("items", []):
-                    username = user["login"]
-                    if (username not in following_logins
-                            and username != current_login
-                            and username not in recommended_users):
-                        recommended_users.append(username)
-                        if len(recommended_users) >= limit:
-                            break
-
-        famous_users = [
-            "torvalds", "gaearon", "sindresorhus", "addyosmani", "paulirish",
-            "jashkenas", "defunkt", "mojombo", "pjhyett", "wycats",
-            "dhh", "jeresig", "substack", "creationix", "ry",
-            "tj", "visionmedia", "isaacs", "mikeal", "feross",
-            "rauchg", "yyx990803", "kentcdodds", "getify", "bradfitz",
-        ]
-        for user in famous_users:
-            if (user not in following_logins
-                    and user != current_login
-                    and user not in recommended_users):
-                recommended_users.append(user)
-                if len(recommended_users) >= limit:
-                    break
+        add_random_search_users(headers, current_login, following_logins, recommended_users, limit)
+        add_repository_contributors(headers, current_login, following_logins, recommended_users, limit)
 
         random.shuffle(recommended_users)
         return recommended_users[:limit]

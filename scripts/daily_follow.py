@@ -19,24 +19,31 @@ import sys
 import time
 import random
 import requests
+from datetime import datetime, timedelta
 
 GITHUB_API = "https://api.github.com"
 TIMEOUT = 10
 
 SEARCH_QUERIES = [
-    "created:>2023-01-01 followers:>10",
-    "language:python followers:>20",
-    "language:javascript followers:>20",
-    "language:go followers:>20",
-    "language:rust followers:>20",
+    "type:user repos:>0",
+    "type:user language:python",
+    "type:user language:javascript",
+    "type:user language:go",
+    "type:user language:rust",
+    "type:user language:java",
+    "type:user created:>2020-01-01",
+    "type:user created:>2022-01-01",
 ]
 
-FAMOUS_USERS = [
-    "torvalds", "gaearon", "sindresorhus", "addyosmani", "paulirish",
-    "jashkenas", "defunkt", "mojombo", "pjhyett", "wycats",
-    "dhh", "jeresig", "substack", "creationix", "ry",
-    "tj", "visionmedia", "isaacs", "mikeal", "feross",
-    "rauchg", "yyx990803", "kentcdodds", "getify", "bradfitz",
+REPOSITORY_QUERIES = [
+    "archived:false mirror:false language:python",
+    "archived:false mirror:false language:javascript",
+    "archived:false mirror:false language:typescript",
+    "archived:false mirror:false language:go",
+    "archived:false mirror:false language:rust",
+    "archived:false mirror:false topic:cli",
+    "archived:false mirror:false topic:web",
+    "archived:false mirror:false topic:ai",
 ]
 
 
@@ -72,26 +79,79 @@ def following_set(s: requests.Session) -> set:
     return logins
 
 
-def recommend(s: requests.Session, me: str, already: set, limit: int) -> list:
-    picked = []
-    seen = set(already) | {me}
-    for q in SEARCH_QUERIES:
-        if len(picked) >= limit * 3:
-            break
+def allowed_candidate(login: str, seen: set) -> bool:
+    return bool(login) and not login.endswith("[bot]") and login not in seen
+
+
+def add_random_search_users(s: requests.Session, seen: set, picked: list, target_count: int) -> None:
+    queries = SEARCH_QUERIES[:]
+    random.shuffle(queries)
+    for q in queries:
+        if len(picked) >= target_count:
+            return
         r = s.get(f"{GITHUB_API}/search/users",
-                  params={"q": q, "sort": "followers", "order": "desc", "per_page": 30},
+                  params={"q": q, "per_page": 30, "page": random.randint(1, 10)},
                   timeout=TIMEOUT)
         if r.status_code != 200:
             continue
-        for u in r.json().get("items", []):
-            login = u["login"]
-            if login not in seen:
+        users = r.json().get("items", [])
+        random.shuffle(users)
+        for u in users:
+            login = u.get("login")
+            if u.get("type") == "User" and allowed_candidate(login, seen):
                 seen.add(login)
                 picked.append(login)
-    for login in FAMOUS_USERS:
-        if login not in seen:
-            seen.add(login)
-            picked.append(login)
+                if len(picked) >= target_count:
+                    return
+
+
+def add_repository_contributors(s: requests.Session, seen: set, picked: list, target_count: int) -> None:
+    recent_cutoff = (datetime.utcnow() - timedelta(days=365)).strftime("%Y-%m-%d")
+    queries = [f"{q} pushed:>{recent_cutoff}" for q in REPOSITORY_QUERIES]
+    random.shuffle(queries)
+    for q in queries:
+        if len(picked) >= target_count:
+            return
+        r = s.get(f"{GITHUB_API}/search/repositories",
+                  params={
+                      "q": q,
+                      "sort": random.choice(["updated", "forks", "help-wanted-issues"]),
+                      "order": "desc",
+                      "per_page": 10,
+                      "page": random.randint(1, 5),
+                  },
+                  timeout=TIMEOUT)
+        if r.status_code != 200:
+            continue
+        repos = r.json().get("items", [])
+        random.shuffle(repos)
+        for repo in repos:
+            if len(picked) >= target_count:
+                return
+            contributors_url = repo.get("contributors_url")
+            if not contributors_url:
+                continue
+            contributors_response = s.get(contributors_url,
+                                          params={"per_page": 30, "anon": "false"},
+                                          timeout=TIMEOUT)
+            if contributors_response.status_code != 200:
+                continue
+            contributors = contributors_response.json()
+            random.shuffle(contributors)
+            for contributor in contributors:
+                login = contributor.get("login")
+                if contributor.get("type") == "User" and allowed_candidate(login, seen):
+                    seen.add(login)
+                    picked.append(login)
+                    if len(picked) >= target_count:
+                        return
+
+
+def recommend(s: requests.Session, me: str, already: set, limit: int) -> list:
+    picked = []
+    seen = set(already) | {me}
+    add_random_search_users(s, seen, picked, limit)
+    add_repository_contributors(s, seen, picked, limit)
     random.shuffle(picked)
     return picked[:limit]
 
