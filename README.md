@@ -157,7 +157,7 @@ GET /
 | `PORT` | `8000` | 服务端口 |
 | `FOLLOW_TOKEN` | 无（必填） | 自动关注脚本使用的 GitHub Token，需要 `user:follow` 权限 |
 | `FOLLOW_MIN` | `10` | 自动关注脚本单次关注人数下限 |
-| `FOLLOW_MAX` | `15` | 自动关注脚本单次关注人数上限 |
+| `FOLLOW_MAX` | `10` | 自动关注脚本单次关注人数上限 |
 | `RATE_LIMIT_FLOOR` | `200` | GitHub API 剩余配额低于该值时提前停止 |
 
 ### 速率限制
@@ -178,6 +178,10 @@ FOLLOW_TOKEN=your_github_token python3 scripts/daily_follow.py
 - 近期活跃项目的 contributors
 
 脚本会过滤自己、已关注用户和 bot 账号；不会使用粉丝数排序，也不会追加固定明星名单。
+
+GitHub Actions 默认在北京时间 08:00–17:00 每小时触发一次，每批随机延迟最多
+20 分钟后关注 10 人，目标每天约 100 人。若遇到 GitHub API 限流、任务延迟或
+没有足够的新候选，脚本会提前停止，因此实际人数可能低于 100。
 
 ## 🛡️ 安全考虑
 

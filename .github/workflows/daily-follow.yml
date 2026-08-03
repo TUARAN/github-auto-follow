@@ -2,10 +2,18 @@ name: Daily Follow
 
 on:
   schedule:
-    # GitHub cron 用 UTC。两个触发点，触发后在任务里随机延迟，
-    # 让真正执行落在 8–12 / 14–18（北京时间）窗口内的随机时刻。
-    - cron: "0 0 * * *"   # 00:00 UTC = 08:00 北京
-    - cron: "0 6 * * *"   # 06:00 UTC = 14:00 北京
+    # GitHub cron 使用 UTC。北京时间 08:00–17:00 每小时触发一批，
+    # 每批关注 10 人，并随机延迟最多 20 分钟，目标每天约 100 人。
+    - cron: "0 0 * * *"   # 08:00 北京
+    - cron: "0 1 * * *"   # 09:00 北京
+    - cron: "0 2 * * *"   # 10:00 北京
+    - cron: "0 3 * * *"   # 11:00 北京
+    - cron: "0 4 * * *"   # 12:00 北京
+    - cron: "0 5 * * *"   # 13:00 北京
+    - cron: "0 6 * * *"   # 14:00 北京
+    - cron: "0 7 * * *"   # 15:00 北京
+    - cron: "0 8 * * *"   # 16:00 北京
+    - cron: "0 9 * * *"   # 17:00 北京
   workflow_dispatch:
     inputs:
       max_sleep_minutes:
@@ -20,7 +28,7 @@ concurrency:
 jobs:
   follow:
     runs-on: ubuntu-latest
-    timeout-minutes: 260
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -32,7 +40,7 @@ jobs:
 
       - name: Random delay within the window
         run: |
-          MAX_MIN="${{ github.event.inputs.max_sleep_minutes || '210' }}"
+          MAX_MIN="${{ github.event.inputs.max_sleep_minutes || '20' }}"
           SECS=$(( RANDOM % (MAX_MIN * 60 + 1) ))
           echo "随机延迟 ${SECS}s（约 $((SECS / 60)) 分钟）后执行，以随机化关注时刻"
           sleep "$SECS"
@@ -41,6 +49,6 @@ jobs:
         env:
           FOLLOW_TOKEN: ${{ secrets.FOLLOW_TOKEN }}
           FOLLOW_MIN: "10"
-          FOLLOW_MAX: "15"
+          FOLLOW_MAX: "10"
           RATE_LIMIT_FLOOR: "200"
         run: python scripts/daily_follow.py

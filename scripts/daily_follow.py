@@ -5,13 +5,14 @@
 GitHub 本身就是「已关注谁」的唯一事实来源，因此脚本无状态：
 每次运行都重新拉取关注列表并过滤，重复运行幂等、不会重复关注。
 
-本次关注人数在 [FOLLOW_MIN, FOLLOW_MAX] 间随机；接近 API 速率限制
+本次关注人数在 [FOLLOW_MIN, FOLLOW_MAX] 间随机；定时工作流默认每批 10 人。
+接近 API 速率限制
 （剩余配额低于 RATE_LIMIT_FLOOR）或遇到二级限流（403）时，提前停止。
 
 环境变量：
   FOLLOW_TOKEN      必填，具有 user:follow 权限的 Personal Access Token
   FOLLOW_MIN        选填，单次关注人数下限（默认 10）
-  FOLLOW_MAX        选填，单次关注人数上限（默认 15）
+  FOLLOW_MAX        选填，单次关注人数上限（默认 10）
   RATE_LIMIT_FLOOR  选填，剩余配额低于此值即停止（默认 200）
 """
 import os
@@ -173,7 +174,7 @@ def main() -> int:
         return 1
 
     low = int(os.getenv("FOLLOW_MIN", "10"))
-    high = int(os.getenv("FOLLOW_MAX", "15"))
+    high = int(os.getenv("FOLLOW_MAX", "10"))
     floor = int(os.getenv("RATE_LIMIT_FLOOR", "200"))
     limit = random.randint(min(low, high), max(low, high))
 
