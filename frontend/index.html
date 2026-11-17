@@ -16,13 +16,23 @@
     </style>
 </head>
 <body class="bg-white text-zinc-900 antialiased">
-    <div id="app" class="mx-auto max-w-xl px-6 py-16">
+    <div id="app" class="mx-auto px-6 py-16" :class="tab === 'trending' ? 'max-w-2xl' : 'max-w-xl'">
 
         <!-- 标题 -->
         <header class="mb-10">
             <h1 class="text-2xl font-semibold tracking-tight">GitHub Follow</h1>
-            <p class="mt-1 text-sm text-zinc-500">用 Personal Access Token 批量关注 GitHub 用户。</p>
+            <p class="mt-1 text-sm text-zinc-500">用 Personal Access Token 批量关注 GitHub 用户，或浏览每日热门仓库。</p>
+            <nav class="mt-5 flex gap-1 rounded-lg border border-zinc-200 p-1">
+                <button type="button" @click="setTab('follow')"
+                    class="flex-1 rounded-md px-3 py-1.5 text-sm transition"
+                    :class="tab === 'follow' ? 'bg-zinc-900 text-white' : 'text-zinc-600 hover:text-zinc-900'">关注</button>
+                <button type="button" @click="setTab('trending')"
+                    class="flex-1 rounded-md px-3 py-1.5 text-sm transition"
+                    :class="tab === 'trending' ? 'bg-zinc-900 text-white' : 'text-zinc-600 hover:text-zinc-900'">每日热门</button>
+            </nav>
         </header>
+
+        <div v-show="tab === 'follow'">
 
         <!-- Token -->
         <section class="mb-8">
@@ -109,6 +119,38 @@
                 </div>
             </section>
         </transition>
+        </div>
+
+        <!-- 每日热门 -->
+        <div v-show="tab === 'trending'">
+            <p class="mb-5 text-sm text-zinc-500">只读浏览热门仓库，不会自动点 star。点击仓库名打开 GitHub，自行决定是否 star。</p>
+
+            <div v-if="trendingDates.length" class="mb-5 flex gap-2 overflow-x-auto pb-1">
+                <button type="button" v-for="d in trendingDates" :key="d" @click="loadTrending(d)"
+                    class="shrink-0 rounded-full px-3 py-1 text-xs transition"
+                    :class="d === trendingDate ? 'bg-zinc-900 text-white' : 'border border-zinc-200 text-zinc-600 hover:border-zinc-400'">{{ d }}</button>
+            </div>
+
+            <p v-if="trendingLoading" class="text-sm text-zinc-400">加载中…</p>
+            <p v-else-if="trendingError" class="text-sm text-rose-500">{{ trendingError }}</p>
+            <p v-else-if="!trendingItems.length" class="text-sm text-zinc-400">暂无清单。可在仓库中运行采集脚本，或等待定时任务生成。</p>
+
+            <div v-else>
+                <p class="mb-3 text-xs text-zinc-400">{{ trendingDate }} · {{ trendingItems.length }} 个仓库</p>
+                <div class="divide-y divide-zinc-100 overflow-hidden rounded-lg border border-zinc-200">
+                    <article v-for="repo in trendingItems" :key="repo.full_name" class="px-3.5 py-3.5">
+                        <a :href="repo.url" target="_blank" rel="noopener noreferrer"
+                            class="font-medium text-zinc-900 underline-offset-2 hover:underline">{{ repo.full_name }}</a>
+                        <p v-if="repo.description" class="mt-1 text-sm text-zinc-500">{{ repo.description }}</p>
+                        <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-400">
+                            <span v-if="repo.language">{{ repo.language }}</span>
+                            <span>★ {{ formatStars(repo.stars) }}</span>
+                            <span v-if="repo.reason">{{ repo.reason }}</span>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Toast -->
@@ -117,7 +159,7 @@
     </transition>
 
     <script>
-        const { createApp, ref, computed } = Vue;
+        const { createApp, ref, computed, onMounted } = Vue;
 
         // 同源优先：后端已 serve 前端；仅独立静态部署时回退到后端地址。单一来源，不再散落硬编码。
         const SAME_ORIGIN_HAS_API = ['localhost', '127.0.0.1', 'gaf.onrender.com'].includes(location.hostname) || location.port === '8000';
@@ -125,6 +167,7 @@
 
         createApp({
             setup() {
+                const tab = ref('follow');
                 const token = ref('');
                 const usernames = ref('');
                 const showToken = ref(false);
@@ -133,6 +176,11 @@
                 const userInfo = ref(null);
                 const tokenValid = ref(false);
                 const toast = ref('');
+                const trendingDate = ref('');
+                const trendingDates = ref([]);
+                const trendingItems = ref([]);
+                const trendingLoading = ref(false);
+                const trendingError = ref('');
                 let toastTimer = null;
                 let lastValidated = '';
 
@@ -230,10 +278,80 @@
                     URL.revokeObjectURL(url);
                 };
 
+                const formatStars = (n) => Number(n || 0).toLocaleString('en-US');
+
+                const applyHash = () => {
+                    const hash = (location.hash || '').replace(/^#/, '');
+                    if (hash === 'trending' || hash.startsWith('trending/')) {
+                        tab.value = 'trending';
+                        const date = hash.startsWith('trending/') ? hash.slice('trending/'.length) : '';
+                        loadTrending(date);
+                    } else {
+                        tab.value = 'follow';
+                    }
+                };
+
+                const setTab = (name) => {
+                    tab.value = name;
+                    if (name === 'trending') {
+                        const suffix = trendingDate.value ? '/' + trendingDate.value : '';
+                        history.replaceState(null, '', '#trending' + suffix);
+                        if (!trendingItems.value.length && !trendingLoading.value) loadTrending(trendingDate.value);
+                    } else {
+                        history.replaceState(null, '', location.pathname + location.search);
+                    }
+                };
+
+                const loadTrending = async (date) => {
+                    trendingLoading.value = true;
+                    trendingError.value = '';
+                    try {
+                        const path = date ? `/trending/${date}` : '/trending';
+                        const res = await fetch(`${API_BASE}${path}`);
+                        if (res.status === 404) {
+                            trendingItems.value = [];
+                            trendingError.value = '这一天还没有清单';
+                            return;
+                        }
+                        if (!res.ok) {
+                            trendingItems.value = [];
+                            trendingError.value = '加载清单失败';
+                            return;
+                        }
+                        const data = await res.json();
+                        trendingItems.value = data.items || [];
+                        trendingDates.value = data.dates || trendingDates.value;
+                        trendingDate.value = data.date || date || '';
+                        if (tab.value === 'trending' && trendingDate.value) {
+                            history.replaceState(null, '', '#trending/' + trendingDate.value);
+                        }
+                        if (!trendingItems.value.length) {
+                            trendingError.value = '';
+                        }
+                    } catch {
+                        trendingItems.value = [];
+                        trendingError.value = '网络错误，无法加载清单';
+                    } finally {
+                        trendingLoading.value = false;
+                    }
+                };
+
+                onMounted(() => {
+                    applyHash();
+                    window.addEventListener('hashchange', applyHash);
+                    if (tab.value !== 'trending') {
+                        // 预拉一份最新清单，切换标签时更快
+                        loadTrending();
+                    }
+                });
+
                 return {
+                    tab, setTab,
                     token, usernames, showToken, isLoading, results, userInfo, tokenValid, toast,
                     validUsernames, successfulCount, failedCount, canFollow,
-                    validateToken, loadRecommended, followUsers, exportResults
+                    validateToken, loadRecommended, followUsers, exportResults,
+                    trendingDate, trendingDates, trendingItems, trendingLoading, trendingError,
+                    loadTrending, formatStars
                 };
             }
         }).mount('#app');
