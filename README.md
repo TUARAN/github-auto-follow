@@ -159,7 +159,13 @@ GET /trending/dates
 GET /trending/2026-11-17
 ```
 
-`GET /trending` 返回最新一份清单，响应中同时包含可回看的日期列表。每条仓库包含 `full_name`、`description`、`language`、`stars`、`url` 和可选的 `reason`。
+`GET /trending` 返回最新一份清单，响应中同时包含可回看的日期列表。每条仓库包含 `full_name`、`description`、`language`、`stars`、`url` 和可选的 `reason`；配置了 `DEEPSEEK_API_KEY` 时还会有中文简介 `description_zh`。
+
+### 每日热门定时采集与简介翻译
+
+- 定时任务：`.github/workflows/daily-trending.yml`，北京时间每天 08:30 跑一次 `scripts/daily_trending.py`，并把 `data/trending/` 提交回 `main` 分支；也可以在 Actions 页面手动触发（workflow_dispatch）
+- 简介翻译：配置 Secrets `DEEPSEEK_API_KEY` 后，清单生成时自动把英文简介译成简体中文，写入 `description_zh`；翻译结果缓存在 `data/trending/translations.json`（按仓库名和简介哈希做键，同一仓库不重复翻译，90 天过期）
+- 翻译失败或未配置 key 时 `description_zh` 留空，不影响采集和展示；展示端优先中文简介、回退英文原文
 
 ## ⚙️ 配置说明
 
@@ -176,6 +182,8 @@ GET /trending/2026-11-17
 | `FOLLOW_MAX` | `10` | 自动关注脚本单次关注人数上限 |
 | `RATE_LIMIT_FLOOR` | `200` | GitHub API 剩余配额低于该值时提前停止 |
 | `DIGEST_TOKEN` / `GITHUB_TOKEN` | 无（选填） | 采集热门清单时用于提高 GitHub Search API 速率限制，只读即可。GitHub Actions 会自动使用 `GITHUB_TOKEN`，一般不必另配 Secret |
+| `DEEPSEEK_API_KEY` | 无（选填） | 配置后把仓库简介翻译成中文，写入清单的 `description_zh` 字段；未配置或 key 无效时跳过翻译，采集照常完成。在 GitHub Actions 中通过 Secrets 配置 |
+| `DIGEST_TRANSLATE_MODEL` | `deepseek-chat` | 简介翻译使用的 DeepSeek 模型 |
 | `DIGEST_LIMIT` | `30` | 每日热门清单条数，限制在 20–50 |
 | `DIGEST_RETENTION_DAYS` | `14` | 清单保留天数，更早的文件会被删除 |
 | `TRENDING_DATA_DIR` | `data/trending` | 后端读取清单的本地目录 |

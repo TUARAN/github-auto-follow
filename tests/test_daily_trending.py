@@ -133,5 +133,50 @@ class SafetyTests(unittest.TestCase):
             self.assertNotIn("session.delete", source)
 
 
+class TranslationTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_cache_key_is_stable_and_distinct(self):
+        key_a = daily_trending.translation_cache_key("a/one", "Same text.")
+        key_a2 = daily_trending.translation_cache_key("a/one", "Same text.")
+        key_b = daily_trending.translation_cache_key("a/two", "Same text.")
+        key_c = daily_trending.translation_cache_key("a/one", "Different text.")
+        self.assertEqual(key_a, key_a2)
+        self.assertNotEqual(key_a, key_b)
+        self.assertNotEqual(key_a, key_c)
+
+    def test_cache_roundtrip_and_prune(self):
+        daily_trending.save_translation_cache(self.tmp, {"k1": {"zh": "示例", "at": "2020-01-01T00:00:00+00:00"}})
+        loaded = daily_trending.load_translation_cache(self.tmp)
+        self.assertEqual(loaded["k1"]["zh"], "示例")
+        pruned = daily_trending.prune_translation_cache(loaded)
+        self.assertEqual(pruned, {})
+
+    def test_translate_skips_without_valid_key(self):
+        items = [{"full_name": "a/one", "description": "A demo repository.", "description_zh": ""}]
+        result = daily_trending.translate_descriptions(items, self.tmp, None)
+        self.assertEqual(result[0]["description_zh"], "")
+        result = daily_trending.translate_descriptions(items, self.tmp, "sk-你的密钥")
+        self.assertEqual(result[0]["description_zh"], "")
+
+    def test_write_digest_includes_description_zh(self):
+        items = [{
+            "full_name": "a/one",
+            "description": "A demo repository.",
+            "description_zh": "一个演示仓库。",
+            "language": "Python",
+            "stars": 1,
+            "url": "https://github.com/a/one",
+            "reason": "GitHub 今日趋势",
+        }]
+        path = daily_trending.write_digest(self.tmp, "2026-11-18", items, ["test"])
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(payload["items"][0]["description_zh"], "一个演示仓库。")
+
+
 if __name__ == "__main__":
     unittest.main()

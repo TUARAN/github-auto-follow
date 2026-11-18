@@ -16,16 +16,21 @@
                     选填，保留最近几天的清单，默认 14
   DIGEST_DATA_DIR   选填，输出目录，默认仓库下 data/trending
   DIGEST_DATE       选填，清单日期 YYYY-MM-DD（默认 Asia/Shanghai 当天）
+  DEEPSEEK_API_KEY  选填，配置后把仓库简介翻译成中文写入 description_zh；
+                    未配置时跳过翻译，采集照常完成
+  DIGEST_TRANSLATE_MODEL
+                    选填，DeepSeek 模型名，默认 deepseek-chat
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import html as html_lib
 import json
 import os
 import re
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterable, List, Optional
 from zoneinfo import ZoneInfo
@@ -41,6 +46,13 @@ MAX_LIMIT = 50
 DEFAULT_LIMIT = 30
 DEFAULT_RETENTION_DAYS = 14
 REPO_ROOT = Path(__file__).resolve().parent.parent
+
+DEEPSEEK_API = "https://api.deepseek.com/chat/completions"
+DEFAULT_TRANSLATE_MODEL = "deepseek-chat"
+TRANSLATION_CACHE_NAME = "translations.json"
+TRANSLATION_BATCH_SIZE = 20
+TRANSLATION_TTL_DAYS = 90
+TRANSLATE_TIMEOUT = 120
 
 ARTICLE_RE = re.compile(r'<article class="Box-row"[^>]*>(.*?)</article>', re.S)
 HREF_RE = re.compile(r'<h2[^>]*>\s*<a[^>]*href="(/[^/]+/[^"/]+)"', re.S)
@@ -208,6 +220,134 @@ def enrich_repo(session: requests.Session, item: dict) -> dict:
     return item
 
 
+def translation_cache_key(full_name: str, description: str) -> str:
+    raw = f"{full_name}|{description}".encode("utf-8")
+    return hashlib.sha1(raw).hexdigest()
+
+
+def load_translation_cache(data_dir: Path) -> dict:
+    path = data_dir / TRANSLATION_CACHE_NAME
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        return payload if isinstance(payload, dict) else {}
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"::warning::翻译缓存读取失败，按空缓存处理：{exc}")
+        return {}
+
+
+def save_translation_cache(data_dir: Path, cache: dict) -> None:
+    path = data_dir / TRANSLATION_CACHE_NAME
+    data_dir.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(cache, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def prune_translation_cache(cache: dict) -> dict:
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=TRANSLATION_TTL_DAYS)).isoformat()
+    return {key: value for key, value in cache.items()
+            if isinstance(value, dict) and (value.get("at") or "") >= cutoff}
+
+
+def translate_batch(api_key: str, model: str, texts: List[str]) -> List[Optional[str]]:
+    """一次请求翻译一批简介，返回与输入等长的列表，失败项为 None。"""
+    payload = {
+        "model": model,
+        "messages": [
+            {
+                "role": "system",
+                "content": (
+                    "你是开源项目简介翻译助理。把用户 JSON 数组里的每条 GitHub 仓库英文简介"
+                    "译成一句通顺的简体中文，保留项目名、专有名词和英文术语（如 Agent、CLI）。"
+                    "不要展开、不要解释，只输出 JSON 对象：{\"translations\": [\"译文1\", ...]}，"
+                    "顺序与输入一致，条数相等。"
+                ),
+            },
+            {
+                "role": "user",
+                "content": json.dumps(
+                    {"texts": [{"id": index, "text": text} for index, text in enumerate(texts)]},
+                    ensure_ascii=False,
+                ),
+            },
+        ],
+        "temperature": 0.2,
+        "response_format": {"type": "json_object"},
+        "stream": False,
+    }
+    try:
+        response = requests.post(
+            DEEPSEEK_API,
+            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            json=payload,
+            timeout=TRANSLATE_TIMEOUT,
+        )
+        if response.status_code != 200:
+            print(f"::warning::DeepSeek 翻译失败：HTTP {response.status_code} {response.text[:200]}")
+            return [None] * len(texts)
+        body = response.json()
+        content = body.get("choices", [{}])[0].get("message", {}).get("content", "")
+        parsed = json.loads(content)
+        translations = parsed.get("translations", [])
+        if not isinstance(translations, list) or len(translations) != len(texts):
+            print(f"::warning::DeepSeek 翻译返回条数不符（期望 {len(texts)}，得到 {len(translations)}）")
+            return [None] * len(texts)
+        return [str(value).strip() or None for value in translations]
+    except (requests.RequestException, ValueError, KeyError) as exc:
+        print(f"::warning::DeepSeek 翻译出错：{exc}")
+        return [None] * len(texts)
+
+
+def translate_descriptions(items: List[dict], data_dir: Path, api_key: Optional[str]) -> List[dict]:
+    """为清单补 description_zh：优先读缓存，未命中且配置了 key 时批量调用 DeepSeek。"""
+    for item in items:
+        item["description_zh"] = ""
+
+    descriptions = [
+        (item.get("description") or "").strip()
+        for item in items
+    ]
+    if not any(descriptions):
+        return items
+
+    if not api_key or not re.fullmatch(r"sk-[A-Za-z0-9_\-]{20,}", api_key):
+        print("::warning::未配置有效的 DEEPSEEK_API_KEY（GitHub Secrets 或环境变量），"
+              "跳过简介翻译（description_zh 留空），采集照常完成")
+        return items
+
+    model = os.getenv("DIGEST_TRANSLATE_MODEL", "").strip() or DEFAULT_TRANSLATE_MODEL
+    cache = load_translation_cache(data_dir)
+    cache = prune_translation_cache(cache)
+
+    pending: List[int] = []
+    for index, text in enumerate(descriptions):
+        if not text:
+            continue
+        key = translation_cache_key(items[index].get("full_name") or "", text)
+        cached = cache.get(key)
+        if cached and cached.get("zh"):
+            items[index]["description_zh"] = cached["zh"]
+        else:
+            pending.append(index)
+
+    print(f"简介翻译：命中缓存 {len(descriptions) - len(pending)} 条，待翻译 {len(pending)} 条。")
+    for start in range(0, len(pending), TRANSLATION_BATCH_SIZE):
+        batch = pending[start:start + TRANSLATION_BATCH_SIZE]
+        results = translate_batch(api_key, model, [descriptions[index] for index in batch])
+        for index, zh in zip(batch, results):
+            if zh:
+                items[index]["description_zh"] = zh
+                cache[translation_cache_key(items[index].get("full_name") or "", descriptions[index])] = {
+                    "zh": zh,
+                    "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                }
+
+    save_translation_cache(data_dir, cache)
+    translated = sum(1 for item in items if item["description_zh"])
+    print(f"简介翻译完成：{translated}/{len(items)} 条有中文简介。")
+    return items
+
+
 def merge_repos(groups: Iterable[List[dict]], limit: int) -> List[dict]:
     merged: List[dict] = []
     seen = set()
@@ -278,6 +418,7 @@ def write_digest(data_dir: Path, date: str, items: List[dict], sources: List[str
             {
                 "full_name": item.get("full_name") or "",
                 "description": item.get("description") or "",
+                "description_zh": item.get("description_zh") or "",
                 "language": item.get("language") or "",
                 "stars": int(item.get("stars") or 0),
                 "url": item.get("url") or "",
@@ -294,6 +435,7 @@ def write_digest(data_dir: Path, date: str, items: List[dict], sources: List[str
 def build_digest(data_dir: Path, date: str, limit: int, retention_days: int, token: Optional[str]) -> dict:
     session = build_session(token)
     items = collect_digest(session, date, limit)
+    items = translate_descriptions(items, data_dir, os.getenv("DEEPSEEK_API_KEY", "").strip() or None)
     sources = ["github-trending-daily", "github-trending-weekly", "github-search-new"]
     path = write_digest(data_dir, date, items, sources)
     dates = prune_old_digests(data_dir, date, retention_days)
