@@ -9,6 +9,11 @@ import logging
 from datetime import datetime, timedelta
 from typing import List, Optional
 
+try:
+    from backend.trending import is_valid_date, load_digest, load_index
+except ImportError:
+    from trending import is_valid_date, load_digest, load_index
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -343,6 +348,33 @@ async def get_recommended_users_endpoint(limit: int = 50, authorization: Optiona
     except Exception as e:
         logger.error(f"Error getting recommended users: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+
+@app.get("/trending/dates")
+async def trending_dates():
+    """列出可查看的每日热门清单日期（只读，无需 Token）。"""
+    return load_index()
+
+
+@app.get("/trending")
+async def trending_latest():
+    """返回最新一份每日热门仓库清单（只读，无需 Token）。"""
+    digest = load_digest()
+    if not digest:
+        return {"date": None, "generated_at": None, "count": 0, "items": [], "dates": [], "latest": None}
+    return digest
+
+
+@app.get("/trending/{digest_date}")
+async def trending_by_date(digest_date: str):
+    """返回指定日期的每日热门仓库清单（只读，无需 Token）。"""
+    if not is_valid_date(digest_date):
+        raise HTTPException(status_code=400, detail="Invalid date, expected YYYY-MM-DD")
+    digest = load_digest(digest_date)
+    if not digest:
+        raise HTTPException(status_code=404, detail="Digest not found for this date")
+    return digest
 
 
 if __name__ == "__main__":

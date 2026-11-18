@@ -30,6 +30,7 @@
 - 📈 **统计信息**: 显示成功/失败数量和详细结果
 - 💾 **结果导出**: 支持CSV格式导出关注结果
 - 🔀 **非名人推荐**: 从随机搜索用户和活跃项目参与者中生成关注候选，不按粉丝数排名
+- 📰 **每日热门清单**: 每天采集 GitHub 趋势和近期热门公开仓库，在页面里浏览今日和近期历史（只读，不会自动点 star）
 
 ## 🛠️ 技术栈
 
@@ -121,6 +122,12 @@ python3 -m http.server 3000
 - 每个用户的详细状态
 - 支持导出CSV格式结果
 
+### 6. 浏览每日热门仓库
+- 打开页面后切换到「每日热门」标签（或访问 `#trending`）
+- 可查看当天清单，并切换近期日期回看历史
+- 每条包含仓库全名、简介、语言、star 数和入选原因；点击仓库名会打开 GitHub 页面
+- 清单是只读的，页面不会自动点 star，也没有批量点 star 的操作
+
 ## 🔧 API接口
 
 ### 关注用户
@@ -142,8 +149,23 @@ GET /user/info?token=your_github_token
 
 ### 健康检查
 ```http
-GET /
+GET /healthz
 ```
+
+### 每日热门清单（无需 Token）
+```http
+GET /trending
+GET /trending/dates
+GET /trending/2026-11-17
+```
+
+`GET /trending` 返回最新一份清单，响应中同时包含可回看的日期列表。每条仓库包含 `full_name`、`description`、`language`、`stars`、`url` 和可选的 `reason`；配置了 `DEEPSEEK_API_KEY` 时还会有中文简介 `description_zh`。
+
+### 每日热门定时采集与简介翻译
+
+- 定时任务：`.github/workflows/daily-trending.yml`，北京时间每天 08:30 跑一次 `scripts/daily_trending.py`，并把 `data/trending/` 提交回 `main` 分支；也可以在 Actions 页面手动触发（workflow_dispatch）
+- 简介翻译：配置 Secrets `DEEPSEEK_API_KEY` 后，清单生成时自动把英文简介译成简体中文，写入 `description_zh`；翻译结果缓存在 `data/trending/translations.json`（按仓库名和简介哈希做键，同一仓库不重复翻译，90 天过期）
+- 翻译失败或未配置 key 时 `description_zh` 留空，不影响采集和展示；展示端优先中文简介、回退英文原文
 
 ## ⚙️ 配置说明
 
@@ -159,6 +181,13 @@ GET /
 | `FOLLOW_MIN` | `10` | 自动关注脚本单次关注人数下限 |
 | `FOLLOW_MAX` | `10` | 自动关注脚本单次关注人数上限 |
 | `RATE_LIMIT_FLOOR` | `200` | GitHub API 剩余配额低于该值时提前停止 |
+| `DIGEST_TOKEN` / `GITHUB_TOKEN` | 无（选填） | 采集热门清单时用于提高 GitHub Search API 速率限制，只读即可。GitHub Actions 会自动使用 `GITHUB_TOKEN`，一般不必另配 Secret |
+| `DEEPSEEK_API_KEY` | 无（选填） | 配置后把仓库简介翻译成中文，写入清单的 `description_zh` 字段；未配置或 key 无效时跳过翻译，采集照常完成。在 GitHub Actions 中通过 Secrets 配置 |
+| `DIGEST_TRANSLATE_MODEL` | `deepseek-chat` | 简介翻译使用的 DeepSeek 模型 |
+| `DIGEST_LIMIT` | `30` | 每日热门清单条数，限制在 20–50 |
+| `DIGEST_RETENTION_DAYS` | `14` | 清单保留天数，更早的文件会被删除 |
+| `TRENDING_DATA_DIR` | `data/trending` | 后端读取清单的本地目录 |
+| `TRENDING_FALLBACK_URL` | 本仓库 `main` 分支的 raw 地址 | 本地没有清单文件时，后端可回源到 GitHub 上已提交的数据 |
 
 ### 速率限制
 
@@ -182,6 +211,35 @@ FOLLOW_TOKEN=your_github_token python3 scripts/daily_follow.py
 GitHub Actions 默认在北京时间 08:00–17:00 每小时触发一次，每批随机延迟最多
 20 分钟后关注 10 人，目标每天约 100 人。若遇到 GitHub API 限流、任务延迟或
 没有足够的新候选，脚本会提前停止，因此实际人数可能低于 100。
+
+### 每日热门清单脚本
+
+```bash
+# 本地生成当天清单（可选提供 token 以提高 API 速率限制）
+python3 scripts/daily_trending.py
+
+DIGEST_TOKEN=your_github_token DIGEST_LIMIT=30 python3 scripts/daily_trending.py
+```
+
+脚本会：
+
+- 读取 GitHub Trending（今日 + 本周）页面，收集正在上升的公开仓库
+- 再用 GitHub Search API 补充近 14 日新建、星标较多的公开仓库
+- 去重后默认保存约 30 条（可配置，范围 20–50）到 `data/trending/YYYY-MM-DD.json`，并更新 `data/trending/index.json`
+- 只做只读采集，不会调用 Star API，也不会关注任何人
+
+工作流模板在 `docs/github-actions/daily-trending.yml`，默认在北京时间 08:00 运行，并把清单提交回仓库，供后端 API 和前端读取。启用方式：
+
+1. 把 `docs/github-actions/daily-trending.yml` 复制为 `.github/workflows/daily-trending.yml` 并提交到默认分支 `main`（新建工作流文件需要 GitHub token 具备 `workflow` 权限；也可以在 GitHub 网页上新建该文件）
+2. 确保仓库已打开 GitHub Actions（Settings → Actions → Allow all actions）
+3. 合并到 `main` 后，定时任务会自动生效；也可在 Actions 标签页打开 **Daily Trending Digest**，点击 **Run workflow** 立即生成一份
+4. 无需额外配置 Secret：工作流使用内置的 `GITHUB_TOKEN` 访问只读 API 并提交数据文件
+
+查看清单：
+
+- 打开应用后切换到「每日热门」标签，或直接访问 `/#trending`
+- 本地先生成清单，再启动后端：`cd backend && python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload`，然后访问 http://localhost:8000/#trending
+- 也可直接请求 `GET /trending` 和 `GET /trending/{日期}`
 
 ## 🛡️ 安全考虑
 

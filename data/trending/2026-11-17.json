@@ -1,0 +1,283 @@
+{
+  "date": "2026-11-17",
+  "generated_at": "2026-11-17T17:29:20+08:00",
+  "timezone": "Asia/Shanghai",
+  "sources": [
+    "github-trending-daily",
+    "github-trending-weekly",
+    "github-search-new"
+  ],
+  "count": 30,
+  "items": [
+    {
+      "full_name": "ag-ui-protocol/ag-ui",
+      "description": "AG-UI: the Agent-User Interaction Protocol. Bring Agents into Frontend Applications.",
+      "language": "TypeScript",
+      "stars": 19644,
+      "url": "https://github.com/ag-ui-protocol/ag-ui",
+      "reason": "GitHub 今日趋势，当天新增 791 star",
+      "description_zh": "AG-UI：Agent-User 交互协议。将 Agent 引入前端应用。"
+    },
+    {
+      "full_name": "backnotprop/plannotator",
+      "description": "The workspace to stay in the loop and on top of agents - shape, decide, plan, annotate, review code, share with team, and send all feedback to agents with one click.",
+      "language": "TypeScript",
+      "stars": 12840,
+      "url": "https://github.com/backnotprop/plannotator",
+      "reason": "GitHub 今日趋势，当天新增 696 star",
+      "description_zh": "一个让你紧跟并掌控 Agent 的工作空间——塑造、决策、规划、标注、审查代码、与团队共享，并一键将所有反馈发送给 Agent。"
+    },
+    {
+      "full_name": "dream-num/univer",
+      "description": "Build your own AI office with Univer Office SDK. Bring editing, calculation, collaboration, and file processing into your product for people and AI agents. Built on an extensible open-source core.",
+      "language": "TypeScript",
+      "stars": 28580,
+      "url": "https://github.com/dream-num/univer",
+      "reason": "GitHub 今日趋势，当天新增 1828 star",
+      "description_zh": "使用 Univer Office SDK 构建你自己的 AI 办公套件。将编辑、计算、协作和文件处理能力带给你的产品中的人和 AI Agent。基于可扩展的开源核心构建。"
+    },
+    {
+      "full_name": "tradermonty/claude-trading-skills",
+      "description": "Claude Code skills for equity investors and traders — market analysis, technical charting, economic calendars, screeners, and trading strategy development.",
+      "language": "Python",
+      "stars": 6653,
+      "url": "https://github.com/tradermonty/claude-trading-skills",
+      "reason": "GitHub 今日趋势，当天新增 837 star",
+      "description_zh": "面向股票投资者和交易者的 Claude Code 技能——市场分析、技术图表、经济日历、筛选器和交易策略开发。"
+    },
+    {
+      "full_name": "elementalsouls/Claude-BugHunter",
+      "description": "A Claude Code skill bundle for bug hunting and external red-team work - 82 skills, 15 slash commands, 681 disclosed-report patterns curated across 24 core vulnerability classes, plus enterprise identity + infrastructure attack matrices.",
+      "language": "Python",
+      "stars": 7879,
+      "url": "https://github.com/elementalsouls/Claude-BugHunter",
+      "reason": "GitHub 今日趋势，当天新增 1094 star",
+      "description_zh": "一个用于漏洞挖掘和外部红队工作的 Claude Code 技能包——82 个技能、15 个斜杠命令、681 个披露报告模式，涵盖 24 个核心漏洞类别，外加企业身份 + 基础设施攻击矩阵。"
+    },
+    {
+      "full_name": "getarcaneapp/arcane",
+      "description": "Modern Docker Management, Designed for Everyone",
+      "language": "Go",
+      "stars": 8978,
+      "url": "https://github.com/getarcaneapp/arcane",
+      "reason": "GitHub 今日趋势，当天新增 46 star",
+      "description_zh": "面向所有人的现代 Docker 管理"
+    },
+    {
+      "full_name": "DeanChensj/jiangshan-map",
+      "description": "江山时序 · 中国历史交互地图时间轴 (403 BCE – Present) | Interactive Historical Atlas of China across 18 dynasties, 198 territory snapshots, ancient-to-modern place genealogy & classical poetry routes",
+      "language": "JavaScript",
+      "stars": 7467,
+      "url": "https://github.com/DeanChensj/jiangshan-map",
+      "reason": "GitHub 今日趋势，当天新增 288 star",
+      "description_zh": "江山时序 · 中国历史交互地图时间轴 (403 BCE – Present) | 涵盖 18 个朝代、198 个疆域快照、古今地名谱系与古典诗词路线的中国交互式历史地图集"
+    },
+    {
+      "full_name": "google-labs-code/stitch-skills",
+      "description": "A library of Agent Skills designed to work with the Stitch MCP server. Each skill follows the Agent Skills open standard, for compatibility with coding agents such as Antigravity, Gemini CLI, Claude Code, Cursor.",
+      "language": "TypeScript",
+      "stars": 9875,
+      "url": "https://github.com/google-labs-code/stitch-skills",
+      "reason": "GitHub 今日趋势，当天新增 529 star",
+      "description_zh": "一个专为配合 Stitch MCP 服务器使用而设计的 Agent Skills 库。每个技能都遵循 Agent Skills 开放标准，以兼容 Antigravity、Gemini CLI、Claude Code、Cursor 等编码 Agent。"
+    },
+    {
+      "full_name": "mvanhorn/last30days-skill",
+      "description": "AI agent skill that researches any topic across Reddit, X, YouTube, HN, Polymarket, and the web - then synthesizes a grounded summary",
+      "language": "Python",
+      "stars": 68450,
+      "url": "https://github.com/mvanhorn/last30days-skill",
+      "reason": "GitHub 今日趋势，当天新增 135 star",
+      "description_zh": "一个 AI Agent 技能，可在 Reddit、X、YouTube、HN、Polymarket 和网络上研究任何主题——然后综合出一份有依据的摘要"
+    },
+    {
+      "full_name": "NVIDIA/SkillEvaluator",
+      "description": "Multi-tier framework for evaluating AI agent skills and plugins with quality gates, semantic overlap detection, synthetic evaluation dataset generation, and live agent evaluation that measures how skills affect agent behavior.",
+      "language": "Python",
+      "stars": 3085,
+      "url": "https://github.com/NVIDIA/SkillEvaluator",
+      "reason": "GitHub 今日趋势，当天新增 873 star",
+      "description_zh": "一个多层级框架，用于评估 AI Agent 技能和插件，具备质量门禁、语义重叠检测、合成评估数据集生成，以及衡量技能如何影响 Agent 行为的实时 Agent 评估。"
+    },
+    {
+      "full_name": "alibaba/open-code-review",
+      "description": "Secure, fast, efficient, battle-tested at Alibaba's scale. Hybrid architecture code review tool: deterministic pipelines + LLM Agent, precise line-level comments, built-in multi-language ruleset (NPE, thread-safety, XSS, SQL injection), OpenAI & Anthropic compatible.",
+      "language": "Go",
+      "stars": 53270,
+      "url": "https://github.com/alibaba/open-code-review",
+      "reason": "GitHub 今日趋势，当天新增 951 star",
+      "description_zh": "安全、快速、高效，经阿里巴巴规模实战检验。混合架构代码审查工具：确定性流水线 + LLM Agent，精确到行级评论，内置多语言规则集（NPE、线程安全、XSS、SQL 注入），兼容 OpenAI 与 Anthropic。"
+    },
+    {
+      "full_name": "google-research/paper-orchestra",
+      "description": "PaperOrchestra is a multi-agent framework for automated AI research paper writing.",
+      "language": "Python",
+      "stars": 1980,
+      "url": "https://github.com/google-research/paper-orchestra",
+      "reason": "GitHub 今日趋势，当天新增 313 star",
+      "description_zh": "PaperOrchestra 是一个用于自动化 AI 研究论文写作的多 Agent 框架。"
+    },
+    {
+      "full_name": "ChromeDevTools/chrome-devtools-mcp",
+      "description": "Chrome DevTools for coding agents",
+      "language": "TypeScript",
+      "stars": 57887,
+      "url": "https://github.com/ChromeDevTools/chrome-devtools-mcp",
+      "reason": "GitHub 今日趋势，当天新增 841 star",
+      "description_zh": "面向编码 Agent 的 Chrome DevTools"
+    },
+    {
+      "full_name": "sveltejs/svelte",
+      "description": "web development for the rest of us",
+      "language": "JavaScript",
+      "stars": 89154,
+      "url": "https://github.com/sveltejs/svelte",
+      "reason": "GitHub 今日趋势，当天新增 115 star",
+      "description_zh": "为我们其余人打造的 Web 开发"
+    },
+    {
+      "full_name": "kajisho5/ffmpeg-skill",
+      "description": "Local video editor for coding agents: 42 FFmpeg tools with a machine-readable contract and an MCP server, for Claude Code, Cursor and Codex. Cut, captions, reframe, loudness, platform exports. No cloud, no API keys.",
+      "language": "Python",
+      "stars": 7358,
+      "url": "https://github.com/kajisho5/ffmpeg-skill",
+      "reason": "GitHub 今日趋势，当天新增 367 star",
+      "description_zh": "面向编码 Agent 的本地视频编辑器：42 个 FFmpeg 工具，具备机器可读契约和 MCP 服务器，适用于 Claude Code、Cursor 和 Codex。剪辑、字幕、重构画面、响度、平台导出。无需云，无需 API 密钥。"
+    },
+    {
+      "full_name": "GoogleChrome/modern-web-guidance-src",
+      "description": "Keep your coding agent up to date with the latest web best practices",
+      "language": "TypeScript",
+      "stars": 8207,
+      "url": "https://github.com/GoogleChrome/modern-web-guidance-src",
+      "reason": "GitHub 本周趋势，本周新增 6542 star",
+      "description_zh": "让你的编码 Agent 跟上最新的 Web 最佳实践"
+    },
+    {
+      "full_name": "meta/astryx",
+      "description": "An open source design system that's fully customizable and agent ready",
+      "language": "TypeScript",
+      "stars": 29854,
+      "url": "https://github.com/meta/astryx",
+      "reason": "GitHub 本周趋势，本周新增 10939 star",
+      "description_zh": "一个完全可定制且 Agent 就绪的开源设计系统"
+    },
+    {
+      "full_name": "anthropics/skills",
+      "description": "Public repository for Agent Skills",
+      "language": "Python",
+      "stars": 196319,
+      "url": "https://github.com/anthropics/skills",
+      "reason": "GitHub 本周趋势，本周新增 5666 star",
+      "description_zh": "Agent Skills 的公共仓库"
+    },
+    {
+      "full_name": "vercel-labs/agent-browser",
+      "description": "Browser automation CLI for AI agents",
+      "language": "Rust",
+      "stars": 52197,
+      "url": "https://github.com/vercel-labs/agent-browser",
+      "reason": "GitHub 本周趋势，本周新增 3760 star",
+      "description_zh": "面向 AI Agent 的浏览器自动化 CLI"
+    },
+    {
+      "full_name": "we-promise/sure",
+      "description": "The personal finance app for everyone (by everyone)",
+      "language": "Ruby",
+      "stars": 16110,
+      "url": "https://github.com/we-promise/sure",
+      "reason": "GitHub 本周趋势，本周新增 4679 star",
+      "description_zh": "面向所有人（也由所有人打造）的个人理财应用"
+    },
+    {
+      "full_name": "ZhuLinsen/daily_stock_analysis",
+      "description": "LLM 驱动的多市场股票智能分析系统：多源行情、实时新闻、决策看板与自动推送，支持零成本定时运行。  LLM-powered multi-market stock analysis system with multi-source market data, real-time news, decision dashboard, automated notifications, and cost-free scheduled runs.",
+      "language": "Python",
+      "stars": 72951,
+      "url": "https://github.com/ZhuLinsen/daily_stock_analysis",
+      "reason": "GitHub 本周趋势，本周新增 4355 star",
+      "description_zh": "LLM 驱动的多市场股票智能分析系统：多源行情、实时新闻、决策看板与自动推送，支持零成本定时运行。"
+    },
+    {
+      "full_name": "sherlock-project/sherlock",
+      "description": "Hunt down social media accounts by username across social networks",
+      "language": "Python",
+      "stars": 113449,
+      "url": "https://github.com/sherlock-project/sherlock",
+      "reason": "GitHub 本周趋势，本周新增 7067 star",
+      "description_zh": "通过用户名在各社交网络中追踪社交媒体账号"
+    },
+    {
+      "full_name": "google/elephant-goldfish-model",
+      "description": "Open-source plugin for designing and reviewing software with agents",
+      "language": "Python",
+      "stars": 20552,
+      "url": "https://github.com/google/elephant-goldfish-model",
+      "reason": "GitHub 本周趋势，本周新增 4249 star",
+      "description_zh": "用于借助 Agent 设计和审查软件的开源插件"
+    },
+    {
+      "full_name": "google-deepmind/mujoco",
+      "description": "Multi-Joint dynamics with Contact. A general purpose physics simulator.",
+      "language": "C++",
+      "stars": 18223,
+      "url": "https://github.com/google-deepmind/mujoco",
+      "reason": "GitHub 本周趋势，本周新增 1448 star",
+      "description_zh": "带接触的多关节动力学。通用物理模拟器。"
+    },
+    {
+      "full_name": "addyosmani/agent-skills",
+      "description": "Production-grade engineering skills for AI coding agents.",
+      "language": "JavaScript",
+      "stars": 118472,
+      "url": "https://github.com/addyosmani/agent-skills",
+      "reason": "GitHub 本周趋势，本周新增 3960 star",
+      "description_zh": "面向 AI 编码 Agent 的生产级工程技能。"
+    },
+    {
+      "full_name": "openai/codex-security",
+      "description": "OpenAI's Codex Security CLI and TypeScript SDK for finding, validating, and fixing security vulnerabilities. npm: https://www.npmjs.com/package/@openai/codex-security",
+      "language": "TypeScript",
+      "stars": 13850,
+      "url": "https://github.com/openai/codex-security",
+      "reason": "GitHub 本周趋势，本周新增 2352 star",
+      "description_zh": "OpenAI 的 Codex Security CLI 和 TypeScript SDK，用于发现、验证和修复安全漏洞。npm：https://www.npmjs.com/package/@openai/codex-security"
+    },
+    {
+      "full_name": "QwenLM/qwen-code",
+      "description": "An open-source AI coding agent that lives in your terminal.",
+      "language": "TypeScript",
+      "stars": 30700,
+      "url": "https://github.com/QwenLM/qwen-code",
+      "reason": "GitHub 本周趋势，本周新增 1497 star",
+      "description_zh": "一个运行在终端中的开源 AI 编码 Agent。"
+    },
+    {
+      "full_name": "huamidev/GestaltX",
+      "description": "An MobileGestalt editor for iOS 27.x, featuring region-code tweaks, device presets, backups.",
+      "language": "Swift",
+      "stars": 7965,
+      "url": "https://github.com/huamidev/GestaltX",
+      "reason": "近 14 日新建仓库，星标较多",
+      "description_zh": "适用于 iOS 27.x 的 MobileGestalt 编辑器，支持区域代码调整、设备预设和备份。"
+    },
+    {
+      "full_name": "deepseek-ai/chat-demo",
+      "description": "Chat Demo",
+      "language": "TypeScript",
+      "stars": 4336,
+      "url": "https://github.com/deepseek-ai/chat-demo",
+      "reason": "近 14 日新建仓库，星标较多",
+      "description_zh": "聊天演示"
+    },
+    {
+      "full_name": "tangerineturtle1/NX2navi",
+      "description": "",
+      "language": "C",
+      "stars": 4294,
+      "url": "https://github.com/tangerineturtle1/NX2navi",
+      "reason": "近 14 日新建仓库，星标较多",
+      "description_zh": ""
+    }
+  ]
+}
