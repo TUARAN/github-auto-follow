@@ -138,5 +138,45 @@
   "56b6660f7dd435b2d6cc752ba4510584bb4c073c": {
     "zh": "在 iPhone、iPad 和 Mac 上原生运行你自己的 Switch 游戏：游戏代码重写为 ARM64，图形直通 Metal，一个应用承载整个游戏库。自带游戏和密钥。把你自己的 Switch 游戏原生带到 iPhone / iPad / Mac。",
     "at": "2026-11-18T06:20:53+00:00"
+  },
+  "29ebd817d8615a03eaa870cec1ca0e8743409438": {
+    "zh": "“CLI-Anything：让所有软件都成为 Agent 原生”——CLI-Hub：https://clianything.cc/",
+    "at": "2026-11-19T07:46:47+00:00"
+  },
+  "e84cc5f06b1aa9de42229fd915dd14994d496747": {
+    "zh": "用于评估 AI Agent 技能与插件的多层框架，具备质量门禁、安全扫描、harness 兼容性检查、语义重叠检测、合成评估数据集生成，以及衡量技能如何影响 Agent 行为的实时 Agent 评估。附带可复用的 CI 模板，可将每项检查引入任意仓库。",
+    "at": "2026-11-19T07:46:47+00:00"
+  },
+  "55f76b543cdfa1c7a5be5e591295be8ab6162ed8": {
+    "zh": "Node Version Manager——符合 POSIX 规范的 bash 脚本，用于管理多个活跃的 node.js 版本。",
+    "at": "2026-11-19T07:46:47+00:00"
+  },
+  "d08f8a5714072e219c0c1f40add3c72088538af6": {
+    "zh": "一个用 Rust 编写的极速 Python 包和项目管理器。",
+    "at": "2026-11-19T07:46:47+00:00"
+  },
+  "e5a60e25aee280c90f6cef1897065b8ec138e257": {
+    "zh": "jQuery JavaScript 库",
+    "at": "2026-11-19T07:46:47+00:00"
+  },
+  "09d75a6db48593034e9a7a576abaf08a9155d320": {
+    "zh": "面向 Agent 与开发者的开源云平台。包含 Auth、Databases、Storage、Functions、Messaging、Hosting、Realtime、WAF 等",
+    "at": "2026-11-19T07:46:47+00:00"
+  },
+  "8ce4469bc41402adf9485a2f739183b4f30ce4fb": {
+    "zh": "OpenVINO™ 是一个用于优化和部署 AI 推理的开源工具包",
+    "at": "2026-11-19T07:46:47+00:00"
+  },
+  "47748dcfebedba26f6d6b09bf2524efc57745ab6": {
+    "zh": "具备原生 AI 能力的 fair-code 工作流自动化平台。将可视化构建与自定义代码相结合，支持自托管或云端，400+ 集成。",
+    "at": "2026-11-19T07:46:47+00:00"
+  },
+  "280f7562554f0d125ca7fdfadeed76dcef50d869": {
+    "zh": "一个用于构建用户界面的声明式、高效且灵活的 JavaScript 库。",
+    "at": "2026-11-19T07:46:47+00:00"
+  },
+  "5b39e67d6592406cb6e4ec25507caffe8667a38a": {
+    "zh": "一组 MCP 服务器集合。",
+    "at": "2026-11-19T07:46:47+00:00"
   }
 }
