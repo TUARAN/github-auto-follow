@@ -1,0 +1,283 @@
+{
+  "date": "2026-11-20",
+  "generated_at": "2026-11-20T15:39:21+08:00",
+  "timezone": "Asia/Shanghai",
+  "sources": [
+    "github-trending-daily",
+    "github-trending-weekly",
+    "github-search-new"
+  ],
+  "count": 30,
+  "items": [
+    {
+      "full_name": "elementalsouls/Claude-BugHunter",
+      "description": "A Claude Code skill bundle for bug hunting and external red-team work - 82 skills, 15 slash commands, 681 disclosed-report patterns curated across 24 core vulnerability classes, plus enterprise identity + infrastructure attack matrices.",
+      "description_zh": "一个用于漏洞挖掘和外部红队工作的 Claude Code 技能包——82 个技能、15 个斜杠命令、681 个披露报告模式，涵盖 24 个核心漏洞类别，外加企业身份 + 基础设施攻击矩阵。",
+      "language": "Python",
+      "stars": 13014,
+      "url": "https://github.com/elementalsouls/Claude-BugHunter",
+      "reason": "GitHub 今日趋势，当天新增 1349 star"
+    },
+    {
+      "full_name": "obra/superpowers",
+      "description": "An agentic skills framework & software development methodology that works.",
+      "description_zh": "一个行之有效的 Agent 技能框架与软件开发方法论。",
+      "language": "Shell",
+      "stars": 322324,
+      "url": "https://github.com/obra/superpowers",
+      "reason": "GitHub 今日趋势，当天新增 2028 star"
+    },
+    {
+      "full_name": "HKUDS/CLI-Anything",
+      "description": "\"CLI-Anything: Making ALL Software Agent-Native\" -- CLI-Hub: https://clianything.cc/",
+      "description_zh": "“CLI-Anything：让所有软件都成为 Agent 原生”——CLI-Hub：https://clianything.cc/",
+      "language": "Python",
+      "stars": 60806,
+      "url": "https://github.com/HKUDS/CLI-Anything",
+      "reason": "GitHub 今日趋势，当天新增 898 star"
+    },
+    {
+      "full_name": "jingyaogong/minimind",
+      "description": "🧠 两小时从 0 训出你的 64M 大模型。Train your own 64M LLM from scratch in 2 hours.",
+      "description_zh": "🧠 两小时从 0 训出你的 64M 大模型。",
+      "language": "Python",
+      "stars": 67237,
+      "url": "https://github.com/jingyaogong/minimind",
+      "reason": "GitHub 今日趋势，当天新增 238 star"
+    },
+    {
+      "full_name": "cursor/plugins",
+      "description": "Cursor plugin specification and official plugins",
+      "description_zh": "Cursor 插件规范与官方插件",
+      "language": "TypeScript",
+      "stars": 17647,
+      "url": "https://github.com/cursor/plugins",
+      "reason": "GitHub 今日趋势，当天新增 384 star"
+    },
+    {
+      "full_name": "firecrawl/firecrawl",
+      "description": "Knowledge infrastructure to make your agents smarter. Search, scrape and 550+ data providers through one API.",
+      "description_zh": "让你的 Agent 更智能的知识基础设施。通过一个 API 搜索、抓取并接入 550+ 数据提供商。",
+      "language": "TypeScript",
+      "stars": 204560,
+      "url": "https://github.com/firecrawl/firecrawl",
+      "reason": "GitHub 今日趋势，当天新增 825 star"
+    },
+    {
+      "full_name": "nginx/nginx",
+      "description": "The official NGINX Open Source repository.",
+      "description_zh": "NGINX 开源官方仓库。",
+      "language": "C",
+      "stars": 32419,
+      "url": "https://github.com/nginx/nginx",
+      "reason": "GitHub 今日趋势，当天新增 73 star"
+    },
+    {
+      "full_name": "openvinotoolkit/openvino",
+      "description": "OpenVINO™ is an open source toolkit for optimizing and deploying AI inference",
+      "description_zh": "OpenVINO™ 是一个用于优化和部署 AI 推理的开源工具包",
+      "language": "C++",
+      "stars": 11627,
+      "url": "https://github.com/openvinotoolkit/openvino",
+      "reason": "GitHub 今日趋势，当天新增 246 star"
+    },
+    {
+      "full_name": "cathrynlavery/diagram-design",
+      "description": "Editorial diagram design for Claude Code, Codex, GitHub Copilot, Cursor, Factory Droid, Qoder, and Pi. 45 diagram types. Self-contained HTML + SVG. No shadows. No Mermaid slop.",
+      "description_zh": "面向 Claude Code、Codex、GitHub Copilot、Cursor、Factory Droid、Qoder 和 Pi 的编辑级图表设计。45 种图表类型。自包含 HTML + SVG。无阴影。拒绝 Mermaid 式粗糙。",
+      "language": "HTML",
+      "stars": 68861,
+      "url": "https://github.com/cathrynlavery/diagram-design",
+      "reason": "GitHub 今日趋势，当天新增 271 star"
+    },
+    {
+      "full_name": "mvanhorn/last30days-skill",
+      "description": "AI agent skill that researches any topic across Reddit, X, YouTube, HN, Polymarket, and the web - then synthesizes a grounded summary",
+      "description_zh": "一个 AI Agent 技能，可在 Reddit、X、YouTube、HN、Polymarket 和网络上研究任何主题——然后综合出一份有依据的摘要",
+      "language": "Python",
+      "stars": 71021,
+      "url": "https://github.com/mvanhorn/last30days-skill",
+      "reason": "GitHub 今日趋势，当天新增 954 star"
+    },
+    {
+      "full_name": "google-labs-code/stitch-skills",
+      "description": "A library of Agent Skills designed to work with the Stitch MCP server. Each skill follows the Agent Skills open standard, for compatibility with coding agents such as Antigravity, Gemini CLI, Claude Code, Cursor.",
+      "description_zh": "一个专为配合 Stitch MCP 服务器使用而设计的 Agent Skills 库。每个技能都遵循 Agent Skills 开放标准，以兼容 Antigravity、Gemini CLI、Claude Code、Cursor 等编码 Agent。",
+      "language": "TypeScript",
+      "stars": 10824,
+      "url": "https://github.com/google-labs-code/stitch-skills",
+      "reason": "GitHub 今日趋势，当天新增 302 star"
+    },
+    {
+      "full_name": "mjmirza/app-store-compliance",
+      "description": "Avoid common App Store and Google Play rejections. Open playbook and pre-submission guard with 117 documented rejection patterns and fixes, privacy manifest and Data safety checks, 95 tracked deadlines (EU AI Act, DSA, COPPA, age laws), and a skill for AI coding agents.",
+      "description_zh": "避免 App Store 和 Google Play 常见拒审。开放手册与提交前防护，含 117 种已记录的拒审模式及修复方案、隐私清单与 Data safety 检查、95 个跟踪截止日期（EU AI Act、DSA、COPPA、年龄法律），以及面向 AI 编码 Agent 的技能。",
+      "language": "Shell",
+      "stars": 2159,
+      "url": "https://github.com/mjmirza/app-store-compliance",
+      "reason": "GitHub 今日趋势，当天新增 377 star"
+    },
+    {
+      "full_name": "Tracer-Cloud/opensre",
+      "description": "The open-source agent for CI/CD reliability.",
+      "description_zh": "面向 CI/CD 可靠性的开源 Agent。",
+      "language": "Python",
+      "stars": 13271,
+      "url": "https://github.com/Tracer-Cloud/opensre",
+      "reason": "GitHub 今日趋势，当天新增 38 star"
+    },
+    {
+      "full_name": "toeverything/AFFiNE",
+      "description": "There can be more than Notion and Miro. AFFiNE(pronounced [ə‘fain]) is a next-gen knowledge base that brings planning, sorting and creating all together. Privacy first, open-source, customizable and ready to use.",
+      "description_zh": "不止于 Notion 和 Miro。AFFiNE（读作 [ə‘fain]）是新一代知识库，将规划、整理与创作融为一体。隐私优先、开源、可定制、开箱即用。",
+      "language": "TypeScript",
+      "stars": 75353,
+      "url": "https://github.com/toeverything/AFFiNE",
+      "reason": "GitHub 今日趋势，当天新增 182 star"
+    },
+    {
+      "full_name": "XiaoYouChR/Ghost-Downloader-3",
+      "description": "The only downloader you need. 下载器的集大成者。",
+      "description_zh": "你唯一需要的下载器。",
+      "language": "Python",
+      "stars": 13111,
+      "url": "https://github.com/XiaoYouChR/Ghost-Downloader-3",
+      "reason": "GitHub 今日趋势，当天新增 341 star"
+    },
+    {
+      "full_name": "zhouxiaoka/autoclip",
+      "description": "AutoClip｜一个链接，一键出片。开源 AI 视频剪辑桌面工具，将播客、访谈、课程等长视频自动剪成短视频，生成字幕、封面和发布文案，适配抖音、小红书、TikTok、Reels 与 YouTube Shorts。Open-source AI video clipping & content repurposing.",
+      "description_zh": "AutoClip｜一个链接，一键出片。开源 AI 视频剪辑桌面工具，将播客、访谈、课程等长视频自动剪成短视频，生成字幕、封面和发布文案，适配抖音、小红书、TikTok、Reels 与 YouTube Shorts。",
+      "language": "Python",
+      "stars": 11627,
+      "url": "https://github.com/zhouxiaoka/autoclip",
+      "reason": "GitHub 今日趋势，当天新增 126 star"
+    },
+    {
+      "full_name": "backnotprop/plannotator",
+      "description": "The workspace to stay in the loop and on top of agents - shape, decide, plan, annotate, review code, share with team, and send all feedback to agents with one click.",
+      "description_zh": "一个让你紧跟并掌控 Agent 的工作空间——塑造、决策、规划、标注、审查代码、与团队共享，并一键将所有反馈发送给 Agent。",
+      "language": "TypeScript",
+      "stars": 13737,
+      "url": "https://github.com/backnotprop/plannotator",
+      "reason": "GitHub 本周趋势，本周新增 3468 star"
+    },
+    {
+      "full_name": "GoogleChrome/modern-web-guidance-src",
+      "description": "Keep your coding agent up to date with the latest web best practices",
+      "description_zh": "让你的编码 Agent 跟上最新的 Web 最佳实践",
+      "language": "TypeScript",
+      "stars": 9302,
+      "url": "https://github.com/GoogleChrome/modern-web-guidance-src",
+      "reason": "GitHub 本周趋势，本周新增 6858 star"
+    },
+    {
+      "full_name": "alibaba/open-code-review",
+      "description": "Secure, fast, efficient, battle-tested at Alibaba's scale. Hybrid architecture code review tool: deterministic pipelines + LLM Agent, precise line-level comments, built-in multi-language ruleset (NPE, thread-safety, XSS, SQL injection), OpenAI & Anthropic compatible.",
+      "description_zh": "安全、快速、高效，经阿里巴巴规模实战检验。混合架构代码审查工具：确定性流水线 + LLM Agent，精确到行级评论，内置多语言规则集（NPE、线程安全、XSS、SQL 注入），兼容 OpenAI 与 Anthropic。",
+      "language": "Go",
+      "stars": 54483,
+      "url": "https://github.com/alibaba/open-code-review",
+      "reason": "GitHub 本周趋势，本周新增 4492 star"
+    },
+    {
+      "full_name": "ChromeDevTools/chrome-devtools-mcp",
+      "description": "Chrome DevTools for coding agents",
+      "description_zh": "面向编码 Agent 的 Chrome DevTools",
+      "language": "TypeScript",
+      "stars": 58421,
+      "url": "https://github.com/ChromeDevTools/chrome-devtools-mcp",
+      "reason": "GitHub 本周趋势，本周新增 3229 star"
+    },
+    {
+      "full_name": "tradermonty/claude-trading-skills",
+      "description": "Claude Code skills for equity investors and traders — market analysis, technical charting, economic calendars, screeners, and trading strategy development.",
+      "description_zh": "面向股票投资者和交易者的 Claude Code 技能——市场分析、技术图表、经济日历、筛选器和交易策略开发。",
+      "language": "Python",
+      "stars": 7307,
+      "url": "https://github.com/tradermonty/claude-trading-skills",
+      "reason": "GitHub 本周趋势，本周新增 3385 star"
+    },
+    {
+      "full_name": "ag-ui-protocol/ag-ui",
+      "description": "AG-UI: the Agent-User Interaction Protocol. Bring Agents into Frontend Applications.",
+      "description_zh": "AG-UI：Agent-User 交互协议。将 Agent 引入前端应用。",
+      "language": "TypeScript",
+      "stars": 20691,
+      "url": "https://github.com/ag-ui-protocol/ag-ui",
+      "reason": "GitHub 本周趋势，本周新增 3455 star"
+    },
+    {
+      "full_name": "meta/astryx",
+      "description": "An open source design system that's fully customizable and agent ready",
+      "description_zh": "一个完全可定制且 Agent 就绪的开源设计系统",
+      "language": "TypeScript",
+      "stars": 31121,
+      "url": "https://github.com/meta/astryx",
+      "reason": "GitHub 本周趋势，本周新增 4977 star"
+    },
+    {
+      "full_name": "pookjw/HermesEnabler",
+      "description": "Enable Hermès Watch Faces on any Apple Watch devices",
+      "description_zh": "在任何 Apple Watch 设备上启用 Hermès 表盘",
+      "language": "Objective-C",
+      "stars": 2264,
+      "url": "https://github.com/pookjw/HermesEnabler",
+      "reason": "GitHub 本周趋势，本周新增 904 star"
+    },
+    {
+      "full_name": "we-promise/sure",
+      "description": "The personal finance app for everyone (by everyone)",
+      "description_zh": "面向所有人（也由所有人打造）的个人理财应用",
+      "language": "Ruby",
+      "stars": 16775,
+      "url": "https://github.com/we-promise/sure",
+      "reason": "GitHub 本周趋势，本周新增 3226 star"
+    },
+    {
+      "full_name": "dream-num/univer",
+      "description": "Build your own AI office with Univer Office SDK. Bring editing, calculation, collaboration, and file processing into your product for people and AI agents. Built on an extensible open-source core.",
+      "description_zh": "使用 Univer Office SDK 构建你自己的 AI 办公套件。将编辑、计算、协作和文件处理能力带给你的产品中的人和 AI Agent。基于可扩展的开源核心构建。",
+      "language": "TypeScript",
+      "stars": 30526,
+      "url": "https://github.com/dream-num/univer",
+      "reason": "GitHub 本周趋势，本周新增 7248 star"
+    },
+    {
+      "full_name": "kajisho5/ffmpeg-skill",
+      "description": "Local video editor for coding agents: 42 FFmpeg tools with a machine-readable contract and an MCP server, for Claude Code, Cursor and Codex. Cut, captions, reframe, loudness, platform exports. No cloud, no API keys.",
+      "description_zh": "面向编码 Agent 的本地视频编辑器：42 个 FFmpeg 工具，具备机器可读契约和 MCP 服务器，适用于 Claude Code、Cursor 和 Codex。剪辑、字幕、重构画面、响度、平台导出。无需云，无需 API 密钥。",
+      "language": "Python",
+      "stars": 8507,
+      "url": "https://github.com/kajisho5/ffmpeg-skill",
+      "reason": "GitHub 本周趋势，本周新增 2998 star"
+    },
+    {
+      "full_name": "huami1314/GestaltX",
+      "description": "An MobileGestalt editor for iOS 27.x, featuring region-code tweaks, device presets, backups.",
+      "description_zh": "适用于 iOS 27.x 的 MobileGestalt 编辑器，支持区域代码调整、设备预设和备份。",
+      "language": "Swift",
+      "stars": 8585,
+      "url": "https://github.com/huami1314/GestaltX",
+      "reason": "近 14 日新建仓库，星标较多"
+    },
+    {
+      "full_name": "erkamyaman/rust-anything",
+      "description": "Rewrite your whole app in Rust, one piece at a time, checked against the original's recorded behavior at every step. CLIs, HTTP servers and libraries in TypeScript, Python, C, Go, Ruby and Java.",
+      "description_zh": "用 Rust 逐步重写你的整个应用，每一步都与原始版本记录的行为进行校验。支持 TypeScript、Python、C、Go、Ruby 和 Java 的 CLI、HTTP 服务器与库。",
+      "language": "Rust",
+      "stars": 5637,
+      "url": "https://github.com/erkamyaman/rust-anything",
+      "reason": "近 14 日新建仓库，星标较多"
+    },
+    {
+      "full_name": "deepseek-ai/chat-demo",
+      "description": "Chat Demo",
+      "description_zh": "聊天演示",
+      "language": "TypeScript",
+      "stars": 5070,
+      "url": "https://github.com/deepseek-ai/chat-demo",
+      "reason": "近 14 日新建仓库，星标较多"
+    }
+  ]
+}
