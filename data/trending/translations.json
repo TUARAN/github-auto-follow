@@ -226,5 +226,13 @@
   "328d93af54331be8a6dd687e237fc9528156929e": {
     "zh": "用 Rust 逐步重写你的整个应用，每一步都与原始版本记录的行为进行校验。支持 TypeScript、Python、C、Go、Ruby 和 Java 的 CLI、HTTP 服务器与库。",
     "at": "2026-11-20T07:39:21+00:00"
+  },
+  "3ba78ac66b7ed4c20f805bf5f594b3c7001023ea": {
+    "zh": "让你的 Agent 更智能的知识基础设施。通过一个 API 搜索、抓取并访问 550+ 数据提供商。",
+    "at": "2026-11-21T07:35:03+00:00"
+  },
+  "c76bcb8eef05c104a4f905d01aec2db457bfa499": {
+    "zh": "在 Windows 10/11 任务栏上显示无线鼠标、耳机、键盘和手柄的电量。轻量级托盘应用，无需厂商软件。支持 Logitech、Razer、SteelSeries、Corsair、HyperX、Glorious、PS4/PS5 DualSense、Xbox 和蓝牙设备。",
+    "at": "2026-11-21T07:35:03+00:00"
   }
 }
