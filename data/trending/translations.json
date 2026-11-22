@@ -234,5 +234,13 @@
   "c76bcb8eef05c104a4f905d01aec2db457bfa499": {
     "zh": "在 Windows 10/11 任务栏上显示无线鼠标、耳机、键盘和手柄的电量。轻量级托盘应用，无需厂商软件。支持 Logitech、Razer、SteelSeries、Corsair、HyperX、Glorious、PS4/PS5 DualSense、Xbox 和蓝牙设备。",
     "at": "2026-11-21T07:35:03+00:00"
+  },
+  "967ccfe400089dfe8f32d2c8ec4f37554a4765c7": {
+    "zh": "避免常见的 App Store 和 Google Play 拒审。开放手册与提交前防护，包含 124 个已记录的拒审模式及修复方案、隐私清单与数据安全审查、111 个跟踪截止日期（EU AI Act、DSA、COPPA、年龄法律），以及面向 AI 编码 Agent 的技能。",
+    "at": "2026-11-22T07:17:22+00:00"
+  },
+  "975650493ca34e968f3000061ab999d1efc09adf": {
+    "zh": "Leonida 是 Xbox 版《Grand Theft Auto 6》的原生 PC 重编译版本",
+    "at": "2026-11-22T07:17:22+00:00"
   }
 }
