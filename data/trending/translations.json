@@ -242,5 +242,13 @@
   "975650493ca34e968f3000061ab999d1efc09adf": {
     "zh": "Leonida 是 Xbox 版《Grand Theft Auto 6》的原生 PC 重编译版本",
     "at": "2026-11-22T07:17:22+00:00"
+  },
+  "ca1bd814ec791740a29051487e5c2dee999e18ed": {
+    "zh": "为 Claude Code、Codex、GitHub Copilot、Cursor、Factory Droid、Qoder 和 Pi 提供的编辑图表设计。52 种图表类型。自包含 HTML + SVG。无阴影。无 Mermaid 冗余。",
+    "at": "2026-11-23T08:00:33+00:00"
+  },
+  "4df53042cc5122fed679c9cb665eb5bb2d00024a": {
+    "zh": "避免常见的 App Store 和 Google Play 拒绝。开放手册和提交前防护，包含 124 个已记录的拒绝模式及修复方法、隐私清单和数据安全检查、112 个跟踪截止日期（EU AI Act、DSA、COPPA、年龄法律），以及面向 AI 编码 Agent 的技能。",
+    "at": "2026-11-23T08:00:33+00:00"
   }
 }
